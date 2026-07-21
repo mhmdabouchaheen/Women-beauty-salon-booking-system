@@ -16,6 +16,37 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Development database seed
+
+Add `MONGODB_URI` to `.env.local`, then start the development server:
+
+```bash
+npm run dev
+```
+
+Seed and verify the database from PowerShell:
+
+```powershell
+Invoke-RestMethod -Method POST -Uri http://localhost:3000/api/seed
+```
+
+Or use curl:
+
+```bash
+curl -X POST http://localhost:3000/api/seed
+```
+
+Refresh MongoDB Atlas Data Explorer. The `woman-beauty-salon-db` database should
+appear with the `users`, `services`, `staff`, and `appointments` collections.
+
+To remove only the development seed records:
+
+```bash
+curl -X DELETE http://localhost:3000/api/seed/cleanup
+```
+
+Both endpoints are disabled when `NODE_ENV` is `production`.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
