@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Button from "./Button";
 import { Star } from "lucide-react";
 import { Expert } from "@/src/data/experts";
 
@@ -15,6 +14,7 @@ export default function ExpertCard({ expert }: Props) {
           src={expert.image}
           alt={expert.name}
           fill
+          sizes="224px"
           className="object-cover"
         />
 

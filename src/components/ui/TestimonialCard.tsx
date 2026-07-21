@@ -25,7 +25,7 @@ export default function TestimonialCard({
       </div>
 
       <p className="mb-8 text-center italic leading-8 text-gray-600">
-        "{testimonial.review}"
+        &ldquo;{testimonial.review}&rdquo;
       </p>
 
       <div className="text-center">

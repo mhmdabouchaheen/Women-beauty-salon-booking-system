@@ -83,6 +83,16 @@ export async function findAppointmentById(id: string) {
   return populateAppointment(Appointment.findById(id));
 }
 
+export async function findAppointmentOwnerById(id: string) {
+  await connectDB();
+  return Appointment.findById(id).select("userId status");
+}
+
+export async function deleteAppointment(id: string) {
+  await connectDB();
+  return Appointment.findByIdAndDelete(id);
+}
+
 export async function updateAppointmentStatus(id: string, status: AppointmentStatus) {
   await connectDB();
   return populateAppointment(

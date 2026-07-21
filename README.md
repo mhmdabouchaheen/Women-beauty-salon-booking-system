@@ -18,7 +18,14 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Development database seed
 
-Add `MONGODB_URI` to `.env.local`, then start the development server:
+Add the database connection and a long random authentication secret to `.env.local`:
+
+```env
+MONGODB_URI=mongodb+srv://...
+JWT_SECRET=replace-with-a-long-random-secret
+```
+
+Then start the development server:
 
 ```bash
 npm run dev
@@ -46,6 +53,21 @@ curl -X DELETE http://localhost:3000/api/seed/cleanup
 ```
 
 Both endpoints are disabled when `NODE_ENV` is `production`.
+
+## Backend API
+
+The Next.js backend provides these routes:
+
+- `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`
+- `GET /api/auth/me`
+- `GET /api/services` and `GET /api/services/:id`
+- `GET /api/staff` and `GET /api/staff/:id`
+- `GET /api/appointments`, `POST /api/appointments`
+- `GET /api/appointments/:id`, `PATCH /api/appointments/:id`
+
+Authentication uses a secure HTTP-only cookie. Service and staff writes require an
+admin account. Customers can view their own appointments and cancel them; admins
+can view all appointments and change their status.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

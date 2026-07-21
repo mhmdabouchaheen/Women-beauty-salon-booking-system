@@ -15,6 +15,7 @@ export default function ServiceCard({ service }: Props) {
           alt={service.title}
           width={1200}
           height={700}
+          loading="eager"
           className="h-[520px] w-full object-cover"
         />
 

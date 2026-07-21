@@ -29,4 +29,11 @@ export const createAppointmentSchema = appointmentBaseSchema.omit({
   endDateTime: true,
 });
 
+export const bookingAppointmentSchema = appointmentBaseSchema.omit({
+  userId: true,
+  startDateTime: true,
+  endDateTime: true,
+  status: true,
+});
+
 export const appointmentStatusSchema = z.enum(["booked", "cancelled"]);

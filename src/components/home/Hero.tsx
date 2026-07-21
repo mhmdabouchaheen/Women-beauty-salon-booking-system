@@ -78,7 +78,7 @@ export default function Hero() {
               </div>
 
               <p className="italic text-gray-700">
-                "The best facial I've ever had. Truly a relaxing experience."
+                &ldquo;The best facial I&apos;ve ever had. Truly a relaxing experience.&rdquo;
               </p>
 
               <p className="mt-4 font-semibold text-gray-900">
