@@ -1,16 +1,18 @@
 "use client";
 
-import { Customer } from "@/src/data/customersAdmin";
+import { Customer } from "@/src/types/admin-ui";
 import CustomerRow from "./CustomerRow";
 
 interface Props {
   customers: Customer[];
   onEdit: (customer: Customer) => void;
+  onDeleted: () => void;
 }
 
 export default function CustomerTable({
   customers,
   onEdit,
+  onDeleted,
 }: Props) {
   if (customers.length === 0) {
     return (
@@ -67,6 +69,7 @@ export default function CustomerTable({
                 key={customer.id}
                 customer={customer}
                 onEdit={onEdit}
+                onDeleted={onDeleted}
               />
 
             ))}

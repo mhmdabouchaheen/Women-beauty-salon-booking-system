@@ -1,16 +1,18 @@
 "use client";
 
-import { StaffMember } from "@/src/data/staffMembers";
+import { StaffMember } from "@/src/types/admin-ui";
 import StaffCard from "./StaffCard";
 
 interface Props {
   staff: StaffMember[];
   onEdit: (staff: StaffMember) => void;
+  onDeleted: () => void;
 }
 
 export default function StaffGrid({
   staff,
   onEdit,
+  onDeleted,
 }: Props) {
   if (staff.length === 0) {
     return (
@@ -36,6 +38,7 @@ export default function StaffGrid({
           key={member.id}
           staff={member}
           onEdit={onEdit}
+          onDeleted={onDeleted}
         />
       ))}
 

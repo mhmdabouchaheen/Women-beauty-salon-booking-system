@@ -15,6 +15,8 @@ export interface IStaff {
   _id: Types.ObjectId;
   name: string;
   specialty: string;
+  image: string;
+  active: boolean;
   serviceIds: Types.ObjectId[];
   weeklySchedule: StaffWorkingHours[];
   holidays: StaffHoliday[];
@@ -22,7 +24,8 @@ export interface IStaff {
   updatedAt: Date;
 }
 
-export type CreateStaffInput = Pick<IStaff, "name" | "specialty"> & {
+export type CreateStaffInput = Pick<IStaff, "name" | "specialty"> &
+  Partial<Pick<IStaff, "image" | "active">> & {
   serviceIds?: string[];
   weeklySchedule?: StaffWorkingHours[];
   holidays?: StaffHoliday[];

@@ -6,6 +6,8 @@ const staffSchema = new Schema<IStaff>(
   {
     name: { type: String, required: true, trim: true },
     specialty: { type: String, required: true, trim: true },
+    image: { type: String, trim: true, default: "/window.svg" },
+    active: { type: Boolean, default: true },
     serviceIds: {
       type: [{ type: Schema.Types.ObjectId, ref: "Service", required: true }],
       default: [],

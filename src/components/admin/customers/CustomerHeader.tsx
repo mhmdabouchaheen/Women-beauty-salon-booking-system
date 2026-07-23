@@ -38,6 +38,10 @@ export default function CustomerHeader({
             </p>
 
           </div>
+          <button onClick={onAdd} className="flex items-center gap-2 rounded-xl bg-rose-700 px-5 py-3 font-semibold text-white hover:bg-rose-800">
+            <UserPlus size={18} />
+            Add Customer
+          </button>
 
         </div>
 

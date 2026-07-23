@@ -4,14 +4,17 @@ export interface IService {
   _id: Types.ObjectId;
   name: string;
   description: string;
+  category: string;
   duration: number;
   price: number;
+  image: string;
+  featured: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export type CreateServiceInput = Pick<
   IService,
-  "name" | "description" | "duration" | "price"
+  "name" | "description" | "category" | "duration" | "price" | "image" | "featured"
 >;
 export type UpdateServiceInput = Partial<CreateServiceInput>;

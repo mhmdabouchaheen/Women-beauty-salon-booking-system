@@ -4,19 +4,21 @@ import Image from "next/image";
 import { Pencil, Trash2, Star } from "lucide-react";
 import Swal from "sweetalert2";
 
-import { AdminService } from "@/src/data/adminServices";
+import { AdminService, apiRequest } from "@/src/types/admin-ui";
 import ServiceCard from "./ServiceCard";
 
 interface Props {
   services: AdminService[];
   onEdit: (service: AdminService) => void;
+  onDeleted: () => void;
 }
 
 export default function ServiceTable({
   services,
   onEdit,
+  onDeleted,
 }: Props) {
-  async function handleDelete() {
+  async function handleDelete(id: string) {
     const result = await Swal.fire({
       title: "Delete Service?",
       text: "This service will be permanently removed.",
@@ -27,12 +29,13 @@ export default function ServiceTable({
     });
 
     if (result.isConfirmed) {
-      await Swal.fire({
-        icon: "success",
-        title: "Deleted",
-        text: "Service deleted successfully.",
-        confirmButtonColor: "#be185d",
-      });
+      try {
+        await apiRequest(`/api/services/${id}`, { method: "DELETE" });
+        await Swal.fire({ icon: "success", title: "Deleted", confirmButtonColor: "#be185d" });
+        onDeleted();
+      } catch (error: unknown) {
+        await Swal.fire({ icon: "error", title: "Could not delete service", text: error instanceof Error ? error.message : "Request failed" });
+      }
     }
   }
 
@@ -202,7 +205,7 @@ export default function ServiceTable({
                       </button>
 
                       <button
-                        onClick={handleDelete}
+                        onClick={() => handleDelete(service.id)}
                         className="rounded-xl bg-red-100 p-2.5 text-red-600 transition hover:bg-red-200"
                       >
                         <Trash2 size={18} />
@@ -233,6 +236,7 @@ export default function ServiceTable({
             key={service.id}
             service={service}
             onEdit={onEdit}
+            onDeleted={onDeleted}
           />
         ))}
 

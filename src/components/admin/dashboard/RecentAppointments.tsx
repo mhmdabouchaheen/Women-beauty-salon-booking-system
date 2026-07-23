@@ -1,16 +1,20 @@
-import { recentAppointments } from "@/src/data/dashboard";
+import Link from "next/link";
 
-export default function RecentAppointments() {
+interface Props {
+  appointments: Array<{ id: string; customer: string; service: string; staff: string; status: string; date: string }>;
+}
+
+export default function RecentAppointments({ appointments }: Props) {
   return (
     <div className="rounded-3xl border border-rose-100 bg-white p-6 shadow-sm">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-800">
-          Today's Appointments
+          Today&apos;s Appointments
         </h2>
 
-        <button className="rounded-xl border border-rose-200 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50">
+        <Link href="/admin/appointments" className="rounded-xl border border-rose-200 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50">
           View All
-        </button>
+        </Link>
       </div>
 
       {/* Desktop Table */}
@@ -27,9 +31,9 @@ export default function RecentAppointments() {
           </thead>
 
           <tbody>
-            {recentAppointments.map((appointment) => (
+            {appointments.map((appointment) => (
               <tr
-                key={appointment.customer}
+                key={appointment.id}
                 className="border-b border-gray-100"
               >
                 <td className="py-5 font-medium">{appointment.customer}</td>
@@ -61,9 +65,9 @@ export default function RecentAppointments() {
 
       {/* Mobile Cards */}
       <div className="space-y-4 lg:hidden">
-        {recentAppointments.map((appointment) => (
+            {appointments.map((appointment) => (
           <div
-            key={appointment.customer}
+            key={appointment.id}
             className="rounded-2xl border border-rose-100 p-4"
           >
             <div className="flex items-center justify-between">

@@ -1,6 +1,6 @@
 import type { Types } from "mongoose";
 
-export type AppointmentStatus = "booked" | "cancelled";
+export type AppointmentStatus = "booked" | "completed" | "cancelled";
 
 export interface IAppointment {
   _id: Types.ObjectId;

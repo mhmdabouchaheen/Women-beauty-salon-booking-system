@@ -13,6 +13,7 @@ const userSchema = new Schema<IUser>(
       trim: true,
     },
     password: { type: String, required: true },
+    image: { type: String, trim: true, default: "/window.svg" },
     role: {
       type: String,
       enum: ["customer", "admin"],

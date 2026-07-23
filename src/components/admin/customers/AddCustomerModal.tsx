@@ -1,50 +1,46 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import { UserCheck, X } from "lucide-react";
 
-import { Customer } from "@/src/data/customersAdmin";
+import { Customer, apiRequest } from "@/src/types/admin-ui";
 
 interface Props {
   open: boolean;
   editing?: boolean;
   customer: Customer | null;
   onClose: () => void;
+  onSaved: () => void;
 }
 
 export default function AddCustomerModal({
   open,
   customer,
   onClose,
+  onSaved,
 }: Props) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [image, setImage] = useState("");
-
-  useEffect(() => {
-    if (!open) return;
-
-    if (customer) {
-      setName(customer.name);
-      setEmail(customer.email);
-      setImage(customer.image);
-    }
-  }, [open, customer]);
+  const [name, setName] = useState(customer?.name ?? "");
+  const [email, setEmail] = useState(customer?.email ?? "");
+  const [image, setImage] = useState(customer?.image ?? "");
+  const [password, setPassword] = useState("");
 
   if (!open) return null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    await Swal.fire({
-      icon: "success",
-      title: "Customer Updated",
-      text: "Customer updated successfully.",
-      confirmButtonColor: "#be185d",
-    });
-
-    onClose();
+    try {
+      await apiRequest(customer ? `/api/admin/customers/${customer.id}` : "/api/admin/customers", {
+        method: customer ? "PATCH" : "POST",
+        body: JSON.stringify(customer ? { name, email, image } : { name, email, password }),
+      });
+      await Swal.fire({ icon: "success", title: customer ? "Customer Updated" : "Customer Created", confirmButtonColor: "#be185d" });
+      onSaved();
+      onClose();
+    } catch (error: unknown) {
+      await Swal.fire({ icon: "error", title: "Could not save customer", text: error instanceof Error ? error.message : "Request failed" });
+    }
   }
 
   return (
@@ -58,8 +54,8 @@ export default function AddCustomerModal({
             </div>
 
             <div>
-              <h2 className="text-3xl font-bold">Edit Customer</h2>
-              <p className="text-gray-500">Update customer information.</p>
+              <h2 className="text-3xl font-bold">{customer ? "Edit Customer" : "Add Customer"}</h2>
+              <p className="text-gray-500">Manage customer information.</p>
             </div>
           </div>
 
@@ -82,6 +78,13 @@ export default function AddCustomerModal({
               className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:border-rose-400"
             />
           </div>
+
+          {!customer && (
+            <div>
+              <label className="mb-2 block font-medium">Temporary Password</label>
+              <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:border-rose-400" />
+            </div>
+          )}
 
           <div>
             <label className="mb-2 block font-medium">Full Name</label>

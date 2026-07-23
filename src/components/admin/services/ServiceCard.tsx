@@ -4,16 +4,18 @@ import Image from "next/image";
 import { Pencil, Trash2, Star, Clock3, DollarSign } from "lucide-react";
 import Swal from "sweetalert2";
 
-import { AdminService } from "@/src/data/adminServices";
+import { AdminService, apiRequest } from "@/src/types/admin-ui";
 
 interface Props {
   service: AdminService;
   onEdit: (service: AdminService) => void;
+  onDeleted: () => void;
 }
 
 export default function ServiceCard({
   service,
   onEdit,
+  onDeleted,
 }: Props) {
   async function handleDelete() {
     const result = await Swal.fire({
@@ -27,12 +29,13 @@ export default function ServiceCard({
     });
 
     if (result.isConfirmed) {
-      await Swal.fire({
-        icon: "success",
-        title: "Deleted",
-        text: "Service deleted successfully.",
-        confirmButtonColor: "#be185d",
-      });
+      try {
+        await apiRequest(`/api/services/${service.id}`, { method: "DELETE" });
+        await Swal.fire({ icon: "success", title: "Deleted", confirmButtonColor: "#be185d" });
+        onDeleted();
+      } catch (error: unknown) {
+        await Swal.fire({ icon: "error", title: "Could not delete service", text: error instanceof Error ? error.message : "Request failed" });
+      }
     }
   }
 

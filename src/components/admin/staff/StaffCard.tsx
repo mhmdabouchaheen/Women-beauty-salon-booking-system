@@ -4,16 +4,18 @@ import Image from "next/image";
 import { Pencil, Trash2, CalendarDays, Clock3 } from "lucide-react";
 import Swal from "sweetalert2";
 
-import { StaffMember } from "@/src/data/staffMembers";
+import { StaffMember, apiRequest } from "@/src/types/admin-ui";
 
 interface Props {
   staff: StaffMember;
   onEdit: (staff: StaffMember) => void;
+  onDeleted: () => void;
 }
 
 export default function StaffCard({
   staff,
   onEdit,
+  onDeleted,
 }: Props) {
   async function handleDelete() {
     const result = await Swal.fire({
@@ -25,11 +27,13 @@ export default function StaffCard({
     });
 
     if (result.isConfirmed) {
-      Swal.fire({
-        icon: "success",
-        title: "Deleted",
-        confirmButtonColor: "#be185d",
-      });
+      try {
+        await apiRequest(`/api/staff/${staff.id}`, { method: "DELETE" });
+        await Swal.fire({ icon: "success", title: "Deleted", confirmButtonColor: "#be185d" });
+        onDeleted();
+      } catch (error: unknown) {
+        await Swal.fire({ icon: "error", title: "Could not delete staff", text: error instanceof Error ? error.message : "Request failed" });
+      }
     }
   }
 

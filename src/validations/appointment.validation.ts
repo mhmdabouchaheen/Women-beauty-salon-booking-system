@@ -13,7 +13,7 @@ const appointmentBaseSchema = z.object({
   appointmentTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Time must use HH:mm format"),
   startDateTime: dateSchema,
   endDateTime: dateSchema,
-  status: z.enum(["booked", "cancelled"]).default("booked"),
+  status: z.enum(["booked", "completed", "cancelled"]).default("booked"),
 });
 
 export const appointmentValidationSchema = appointmentBaseSchema.refine(
@@ -36,4 +36,8 @@ export const bookingAppointmentSchema = appointmentBaseSchema.omit({
   status: true,
 });
 
-export const appointmentStatusSchema = z.enum(["booked", "cancelled"]);
+export const adminBookingAppointmentSchema = bookingAppointmentSchema.extend({
+  userId: objectIdSchema,
+});
+
+export const appointmentStatusSchema = z.enum(["booked", "completed", "cancelled"]);

@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { X, Scissors } from "lucide-react";
 import Swal from "sweetalert2";
 
-import { AdminService } from "@/src/data/adminServices";
+import { AdminService, apiRequest } from "@/src/types/admin-ui";
 
 interface Props {
   open: boolean;
   editing: boolean;
   service: AdminService | null;
   onClose: () => void;
+  onSaved: () => void;
 }
 
 export default function AddServiceModal({
@@ -18,58 +19,32 @@ export default function AddServiceModal({
   editing,
   service,
   onClose,
+  onSaved,
 }: Props) {
-  const [name, setName] = useState("");
-
-  const [description, setDescription] = useState("");
-
-  const [category, setCategory] = useState("");
-
-  const [duration, setDuration] = useState("");
-
-  const [price, setPrice] = useState("");
-
-  const [image, setImage] = useState("");
-
-  const [featured, setFeatured] = useState(true);
-
-  useEffect(() => {
-    if (!open) return;
-
-    if (editing && service) {
-      setName(service.name);
-      setDescription(service.description);
-      setCategory(service.category);
-      setDuration(service.duration);
-      setPrice(service.price.toString());
-      setImage(service.image);
-      setFeatured(service.featured);
-    } else {
-      setName("");
-      setDescription("");
-      setCategory("");
-      setDuration("");
-      setPrice("");
-      setImage("");
-      setFeatured(true);
-    }
-  }, [open, editing, service]);
+  const [name, setName] = useState(service?.name ?? "");
+  const [description, setDescription] = useState(service?.description ?? "");
+  const [category, setCategory] = useState(service?.category ?? "");
+  const [duration, setDuration] = useState(service?.duration ?? "");
+  const [price, setPrice] = useState(service?.price.toString() ?? "");
+  const [image, setImage] = useState(service?.image ?? "");
+  const [featured, setFeatured] = useState(service?.featured ?? true);
 
   if (!open) return null;
 
   async function submitForm(e: React.FormEvent) {
     e.preventDefault();
-
-    await Swal.fire({
-      icon: "success",
-      title: editing ? "Service Updated" : "Service Added",
-      text: editing
-        ? "Service updated successfully."
-        : "Service created successfully.",
-      confirmButtonColor: "#be185d",
-    });
-
-    onClose();
+    try {
+      const minutes = Number.parseInt(duration, 10);
+      await apiRequest(editing && service ? `/api/services/${service.id}` : "/api/services", {
+        method: editing ? "PATCH" : "POST",
+        body: JSON.stringify({ name, description, category, duration: minutes, price: Number(price), image, featured }),
+      });
+      await Swal.fire({ icon: "success", title: editing ? "Service Updated" : "Service Added", confirmButtonColor: "#be185d" });
+      onSaved();
+      onClose();
+    } catch (error: unknown) {
+      await Swal.fire({ icon: "error", title: "Could not save service", text: error instanceof Error ? error.message : "Request failed", confirmButtonColor: "#be185d" });
+    }
   }
 
   return (
@@ -140,7 +115,7 @@ export default function AddServiceModal({
   />
 
   <p className="mt-2 text-sm text-gray-500">
-    For now we'll use an image path. Later this will become an upload.
+    For now we&apos;ll use an image path. Later this will become an upload.
   </p>
 
 </div>

@@ -41,7 +41,7 @@ async function validateServiceIds(serviceIds: string[]) {
 
 export async function staffProvidesService(staffId: string, serviceId: string) {
   await connectDB();
-  return Boolean(await Staff.exists({ _id: staffId, serviceIds: serviceId }));
+  return Boolean(await Staff.exists({ _id: staffId, active: { $ne: false }, serviceIds: serviceId }));
 }
 
 export type StaffAvailabilityReason = "holiday" | "outside_working_hours";
@@ -52,8 +52,8 @@ export async function getStaffAvailability(
   endDateTime: Date,
 ): Promise<{ available: true } | { available: false; reason: StaffAvailabilityReason }> {
   await connectDB();
-  const staff = await Staff.findById(staffId).select("weeklySchedule holidays").lean();
-  if (!staff) return { available: false, reason: "outside_working_hours" };
+  const staff = await Staff.findById(staffId).select("active weeklySchedule holidays").lean();
+  if (!staff || staff.active === false) return { available: false, reason: "outside_working_hours" };
 
   const formatter = new Intl.DateTimeFormat("en-CA", {
     timeZone: SALON_TIME_ZONE,

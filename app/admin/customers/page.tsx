@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import CustomerHeader from "@/src/components/admin/customers/CustomerHeader";
 import CustomerSearch from "@/src/components/admin/customers/CustomerSearch";
@@ -8,10 +8,7 @@ import CustomerTable from "@/src/components/admin/customers/CustomerTable";
 import CustomerPagination from "@/src/components/admin/customers/CustomerPagination";
 import AddCustomerModal from "@/src/components/admin/customers/AddCustomerModal";
 
-import {
-  Customer,
-  customersAdmin,
-} from "@/src/data/customersAdmin";
+import { Customer, apiRequest } from "@/src/types/admin-ui";
 
 export default function CustomersPage() {
   const [search, setSearch] = useState("");
@@ -20,6 +17,22 @@ export default function CustomersPage() {
 
   const [selectedCustomer, setSelectedCustomer] =
     useState<Customer | null>(null);
+  const [customersAdmin, setCustomersAdmin] = useState<Customer[]>([]);
+  const loadCustomers = useCallback(async () => {
+    const data = await apiRequest<{ customers: Array<{ _id: string; name: string; email: string; image?: string; appointmentCount: number; lastAppointment?: string }> }>("/api/admin/customers");
+    setCustomersAdmin(data.customers.map((customer) => ({
+      id: customer._id,
+      name: customer.name,
+      email: customer.email,
+      image: customer.image || "/window.svg",
+      appointments: customer.appointmentCount,
+      lastAppointment: customer.lastAppointment ? new Date(customer.lastAppointment).toLocaleDateString() : "No visits",
+    })));
+  }, []);
+  useEffect(() => {
+    const timeout = window.setTimeout(() => void loadCustomers(), 0);
+    return () => window.clearTimeout(timeout);
+  }, [loadCustomers]);
 
   const filteredCustomers = useMemo(() => {
     return customersAdmin.filter((customer) => {
@@ -32,7 +45,7 @@ export default function CustomersPage() {
           .includes(search.toLowerCase())
       );
     });
-  }, [search]);
+  }, [customersAdmin, search]);
 
   return (
     <div className="space-y-6">
@@ -56,16 +69,18 @@ export default function CustomersPage() {
           setSelectedCustomer(customer);
           setOpen(true);
         }}
+        onDeleted={loadCustomers}
       />
 
       <CustomerPagination />
 
-      <AddCustomerModal
+      {open && <AddCustomerModal
         open={open}
         editing={selectedCustomer !== null}
         customer={selectedCustomer}
         onClose={() => setOpen(false)}
-      />
+        onSaved={loadCustomers}
+      />}
 
     </div>
   );

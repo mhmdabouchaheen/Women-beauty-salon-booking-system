@@ -1,18 +1,21 @@
 "use client";
 
 import { Pencil, Trash2 } from "lucide-react";
+import Image from "next/image";
 import Swal from "sweetalert2";
 
-import { Customer } from "@/src/data/customersAdmin";
+import { Customer, apiRequest } from "@/src/types/admin-ui";
 
 interface Props {
   customer: Customer;
   onEdit: (customer: Customer) => void;
+  onDeleted: () => void;
 }
 
 export default function CustomerRow({
   customer,
   onEdit,
+  onDeleted,
 }: Props) {
   async function handleDelete() {
     const result = await Swal.fire({
@@ -25,11 +28,13 @@ export default function CustomerRow({
     });
 
     if (result.isConfirmed) {
-      Swal.fire({
-        icon: "success",
-        title: "Customer Deleted",
-        confirmButtonColor: "#be185d",
-      });
+      try {
+        await apiRequest(`/api/admin/customers/${customer.id}`, { method: "DELETE" });
+        await Swal.fire({ icon: "success", title: "Customer Deleted", confirmButtonColor: "#be185d" });
+        onDeleted();
+      } catch (error: unknown) {
+        await Swal.fire({ icon: "error", title: "Could not delete customer", text: error instanceof Error ? error.message : "Request failed" });
+      }
     }
   }
 
@@ -40,10 +45,13 @@ export default function CustomerRow({
 
         <div className="flex items-center gap-4">
 
-          <img
+          <Image
             src={customer.image}
             alt={customer.name}
-            className="h-14 w-14 rounded-2xl object-cover border border-rose-100"
+            width={56}
+            height={56}
+            unoptimized
+            className="h-14 w-14 rounded-2xl border border-rose-100 object-cover"
           />
 
           <div>

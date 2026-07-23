@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import {
   UserCircle2,
@@ -11,6 +11,7 @@ import {
   X,
   ShieldCheck,
 } from "lucide-react";
+import { apiRequest } from "@/src/types/admin-ui";
 
 export default function ProfilePage() {
   const [name, setName] = useState("Admin User");
@@ -22,15 +23,22 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  async function saveProfile() {
-    setEditingInfo(false);
+  useEffect(() => {
+    void apiRequest<{ user: { name: string; email: string } }>("/api/admin/profile")
+      .then(({ user }) => {
+        setName(user.name);
+        setEmail(user.email);
+      });
+  }, []);
 
-    await Swal.fire({
-      icon: "success",
-      title: "Profile Updated",
-      text: "Your profile information has been updated.",
-      confirmButtonColor: "#be185d",
-    });
+  async function saveProfile() {
+    try {
+      await apiRequest("/api/admin/profile", { method: "PATCH", body: JSON.stringify({ name, email }) });
+      setEditingInfo(false);
+      await Swal.fire({ icon: "success", title: "Profile Updated", confirmButtonColor: "#be185d" });
+    } catch (error: unknown) {
+      await Swal.fire({ icon: "error", title: "Could not update profile", text: error instanceof Error ? error.message : "Request failed" });
+    }
   }
 
   async function savePassword() {
@@ -44,16 +52,15 @@ export default function ProfilePage() {
       return;
     }
 
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-
-    await Swal.fire({
-      icon: "success",
-      title: "Password Updated",
-      text: "Your password has been changed successfully.",
-      confirmButtonColor: "#be185d",
-    });
+    try {
+      await apiRequest("/api/admin/profile", { method: "PATCH", body: JSON.stringify({ currentPassword, newPassword }) });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      await Swal.fire({ icon: "success", title: "Password Updated", confirmButtonColor: "#be185d" });
+    } catch (error: unknown) {
+      await Swal.fire({ icon: "error", title: "Could not update password", text: error instanceof Error ? error.message : "Request failed" });
+    }
   }
 
   return (

@@ -1,33 +1,11 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import { useState } from "react";
+import AdminShell from "@/src/components/admin/layout/AdminShell";
+import { getAuthUser } from "@/src/lib/auth";
 
-import Sidebar from "@/src/components/admin/layout/Sidebar";
-import Topbar from "@/src/components/admin/layout/Topbar";
-
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  return (
-    <div className="flex min-h-screen bg-rose-50">
-      <Sidebar
-        mobileOpen={mobileOpen}
-        onClose={() => setMobileOpen(false)}
-      />
-
-      <div className="flex min-h-screen flex-1 flex-col md:ml-72">
-        <Topbar
-          onMenuClick={() => setMobileOpen(true)}
-        />
-
-        <main className="flex-1 p-4 pt-28 md:p-8 md:pt-28">
-          {children}
-        </main>
-      </div>
-    </div>
-  );
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const auth = await getAuthUser();
+  if (!auth) redirect("/login?next=/admin");
+  if (auth.role !== "admin") redirect("/");
+  return <AdminShell>{children}</AdminShell>;
 }

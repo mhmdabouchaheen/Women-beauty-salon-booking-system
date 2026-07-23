@@ -86,6 +86,11 @@ export async function deleteAppointment(id: string) {
   return Appointment.findByIdAndDelete(id);
 }
 
+export async function deleteAppointmentsByUser(userId: string) {
+  await connectDB();
+  return Appointment.deleteMany({ userId });
+}
+
 export async function updateAppointmentStatus(id: string, status: AppointmentStatus) {
   await connectDB();
   return populateAppointment(

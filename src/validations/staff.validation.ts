@@ -28,6 +28,8 @@ const holidaysSchema = z.array(holidaySchema).refine(
 export const staffValidationSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   specialty: z.string().trim().min(1, "Specialty is required"),
+  image: z.string().trim().default("/window.svg"),
+  active: z.boolean().default(true),
   serviceIds: z.array(objectIdSchema).refine(
     (ids) => new Set(ids).size === ids.length,
     "Service IDs must be unique",

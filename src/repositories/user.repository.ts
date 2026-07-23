@@ -16,3 +16,33 @@ export async function findUserById(id: string) {
   await connectDB();
   return User.findById(id);
 }
+
+export async function getCustomers() {
+  await connectDB();
+  return User.aggregate([
+    { $match: { role: "customer" } },
+    { $lookup: { from: "appointments", localField: "_id", foreignField: "userId", as: "appointments" } },
+    { $project: {
+      name: 1,
+      email: 1,
+      image: 1,
+      appointmentCount: { $size: "$appointments" },
+      lastAppointment: { $max: "$appointments.startDateTime" },
+      createdAt: 1,
+    } },
+    { $sort: { name: 1 } },
+  ]);
+}
+
+export async function updateUser(
+  id: string,
+  data: { name?: string; email?: string; image?: string; password?: string },
+) {
+  await connectDB();
+  return User.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+}
+
+export async function deleteUser(id: string) {
+  await connectDB();
+  return User.findByIdAndDelete(id);
+}

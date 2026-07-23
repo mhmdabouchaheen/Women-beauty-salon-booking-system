@@ -3,7 +3,7 @@
 import { Pencil, Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
 
-import { Appointment } from "@/src/data/appointments";
+import { Appointment } from "@/src/types/admin-ui";
 
 interface Props {
   appointment: Appointment;

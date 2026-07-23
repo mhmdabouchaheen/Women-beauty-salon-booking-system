@@ -17,7 +17,7 @@ const appointmentSchema = new Schema<IAppointment>(
     endDateTime: { type: Date, required: true, index: true },
     status: {
       type: String,
-      enum: ["booked", "cancelled"],
+      enum: ["booked", "completed", "cancelled"],
       default: "booked",
       index: true,
     },

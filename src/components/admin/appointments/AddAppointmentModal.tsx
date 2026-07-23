@@ -4,10 +4,7 @@ import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { CalendarPlus, Plus, Trash2, X } from "lucide-react";
 
-import { customers } from "@/src/data/customers";
-import { services } from "@/src/data/services";
-import { staff } from "@/src/data/staff";
-import { Appointment } from "@/src/data/appointments";
+import { Appointment, apiRequest } from "@/src/types/admin-ui";
 
 interface ServiceForm {
   id: string;
@@ -23,6 +20,7 @@ interface Props {
   editing: boolean;
   title: string;
   onClose: () => void;
+  onSaved: () => void;
 }
 
 export default function AddAppointmentModal({
@@ -31,58 +29,35 @@ export default function AddAppointmentModal({
   editing,
   title,
   onClose,
+  onSaved,
 }: Props) {
-  const [customer, setCustomer] = useState("");
+  const [customer, setCustomer] = useState(appointment?.customer ?? "");
 
   const [status, setStatus] = useState<
     "Scheduled" | "Completed" | "Cancelled"
-  >("Scheduled");
+  >(appointment?.status ?? "Scheduled");
+  const [customers, setCustomers] = useState<Array<{ id: string; name: string }>>([]);
+  const [services, setServices] = useState<Array<{ id: string; title: string }>>([]);
+  const [staff, setStaff] = useState<Array<{ id: string; name: string; services: string[] }>>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    void Promise.all([
+      apiRequest<{ customers: Array<{ _id: string; name: string }> }>("/api/admin/customers"),
+      apiRequest<{ services: Array<{ _id: string; name: string }> }>("/api/services"),
+      apiRequest<{ staff: Array<{ _id: string; name: string; serviceIds: Array<{ name: string }> }> }>("/api/staff"),
+    ]).then(([customerData, serviceData, staffData]) => {
+      setCustomers(customerData.customers.map((item) => ({ id: item._id, name: item.name })));
+      setServices(serviceData.services.map((item) => ({ id: item._id, title: item.name })));
+      setStaff(staffData.staff.map((item) => ({ id: item._id, name: item.name, services: item.serviceIds.map((service) => service.name) })));
+    });
+  }, [open]);
 
   const [appointmentServices, setAppointmentServices] = useState<
     ServiceForm[]
-  >([
-    {
-      id: crypto.randomUUID(),
-      service: "",
-      staff: "",
-      date: "",
-      time: "",
-    },
-  ]);
-
-  useEffect(() => {
-  if (!open) return;
-
-  if (editing && appointment) {
-    setCustomer(appointment.customer);
-
-    setStatus(appointment.status);
-
-    setAppointmentServices(
-      appointment.services.map((service) => ({
-        id: crypto.randomUUID(),
-        service: service.service,
-        staff: service.staff,
-        date: service.date,
-        time: service.time,
-      }))
-    );
-  } else {
-    setCustomer("");
-
-    setStatus("Scheduled");
-
-    setAppointmentServices([
-      {
-        id: crypto.randomUUID(),
-        service: "",
-        staff: "",
-        date: "",
-        time: "",
-      },
-    ]);
-  }
-}, [open, editing, appointment]);
+  >(appointment?.services.map((service) => ({ ...service, id: crypto.randomUUID() })) ?? [{
+    id: crypto.randomUUID(), service: "", staff: "", date: "", time: "",
+  }]);
 
   if (!open) return null;
 
@@ -126,19 +101,35 @@ export default function AddAppointmentModal({
 
   async function submitForm(e: React.FormEvent) {
     e.preventDefault();
-
-    await Swal.fire({
-      icon: "success",
-      title: editing
-        ? "Appointment Updated"
-        : "Appointment Created",
-      text: editing
-        ? "Appointment updated successfully."
-        : "Appointment added successfully.",
-      confirmButtonColor: "#be185d",
-    });
-
-    onClose();
+    try {
+      if (editing && appointment) {
+        const apiStatus = status === "Cancelled" ? "cancelled" : status === "Completed" ? "completed" : "booked";
+        await apiRequest(`/api/appointments/${appointment.id}`, { method: "PATCH", body: JSON.stringify({ status: apiStatus }) });
+      } else {
+        const customerRecord = customers.find((item) => item.name === customer);
+        if (!customerRecord) throw new Error("Select a customer");
+        for (const item of appointmentServices) {
+          const serviceRecord = services.find((service) => service.title === item.service);
+          const staffRecord = staff.find((member) => member.name === item.staff);
+          if (!serviceRecord || !staffRecord) throw new Error("Select a valid service and staff member");
+          await apiRequest("/api/appointments", {
+            method: "POST",
+            body: JSON.stringify({
+              userId: customerRecord.id,
+              serviceId: serviceRecord.id,
+              staffId: staffRecord.id,
+              appointmentDate: item.date,
+              appointmentTime: item.time,
+            }),
+          });
+        }
+      }
+      await Swal.fire({ icon: "success", title: editing ? "Appointment Updated" : "Appointment Created", confirmButtonColor: "#be185d" });
+      onSaved();
+      onClose();
+    } catch (error: unknown) {
+      await Swal.fire({ icon: "error", title: "Could not save appointment", text: error instanceof Error ? error.message : "Request failed" });
+    }
   }
   return (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-5 backdrop-blur-sm">
@@ -396,13 +387,13 @@ export default function AddAppointmentModal({
                       Select time
                     </option>
 
-                    <option>09:00 AM</option>
-                    <option>10:00 AM</option>
-                    <option>11:00 AM</option>
-                    <option>01:00 PM</option>
-                    <option>02:00 PM</option>
-                    <option>03:00 PM</option>
-                    <option>04:00 PM</option>
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="13:00">01:00 PM</option>
+                    <option value="14:00">02:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
                   </select>
                 </div>
               </div>

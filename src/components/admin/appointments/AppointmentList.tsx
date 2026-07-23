@@ -1,6 +1,6 @@
 "use client";
 
-import { Appointment } from "@/src/data/appointments";
+import { Appointment } from "@/src/types/admin-ui";
 import AppointmentCard from "./AppointmentCard";
 import AppointmentMobileCard from "./AppointmentMobileCard";
 

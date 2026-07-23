@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import {
   Settings,
@@ -12,6 +12,7 @@ import {
   Save,
   X,
 } from "lucide-react";
+import { apiRequest } from "@/src/types/admin-ui";
 
 export default function SettingsPage() {
   const [address, setAddress] = useState("Beirut, Lebanon");
@@ -25,26 +26,43 @@ export default function SettingsPage() {
   const [editingContact, setEditingContact] = useState(false);
   const [editingHours, setEditingHours] = useState(false);
 
-  async function saveContact() {
-    setEditingContact(false);
+  useEffect(() => {
+    void apiRequest<{ settings: { address: string; phone: string; email: string; weekdays: string; saturday: string; sunday: string } }>("/api/admin/settings")
+      .then(({ settings }) => {
+        setAddress(settings.address);
+        setPhone(settings.phone);
+        setEmail(settings.email);
+        setWeekdays(settings.weekdays);
+        setSaturday(settings.saturday);
+        setSunday(settings.sunday);
+      });
+  }, []);
 
-    await Swal.fire({
-      icon: "success",
-      title: "Contact Updated",
-      text: "Contact information saved successfully.",
-      confirmButtonColor: "#be185d",
+  async function persistSettings() {
+    return apiRequest("/api/admin/settings", {
+      method: "PUT",
+      body: JSON.stringify({ address, phone, email, weekdays, saturday, sunday }),
     });
   }
 
-  async function saveHours() {
-    setEditingHours(false);
+  async function saveContact() {
+    try {
+      await persistSettings();
+      setEditingContact(false);
+      await Swal.fire({ icon: "success", title: "Contact Updated", confirmButtonColor: "#be185d" });
+    } catch (error: unknown) {
+      await Swal.fire({ icon: "error", title: "Could not save settings", text: error instanceof Error ? error.message : "Request failed" });
+    }
+  }
 
-    await Swal.fire({
-      icon: "success",
-      title: "Opening Hours Updated",
-      text: "Opening hours saved successfully.",
-      confirmButtonColor: "#be185d",
-    });
+  async function saveHours() {
+    try {
+      await persistSettings();
+      setEditingHours(false);
+      await Swal.fire({ icon: "success", title: "Opening Hours Updated", confirmButtonColor: "#be185d" });
+    } catch (error: unknown) {
+      await Swal.fire({ icon: "error", title: "Could not save settings", text: error instanceof Error ? error.message : "Request failed" });
+    }
   }
 
   return (

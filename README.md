@@ -72,10 +72,19 @@ The Next.js backend provides these routes:
 - `GET /api/staff` and `GET /api/staff/:id`
 - `GET /api/appointments`, `POST /api/appointments`
 - `GET /api/appointments/:id`, `PATCH /api/appointments/:id`
+- `GET /api/admin/dashboard`
+- `GET`, `POST /api/admin/customers` and `PATCH`, `DELETE /api/admin/customers/:id`
+- `GET`, `PATCH /api/admin/profile`
+- `GET`, `PUT /api/admin/settings`
 
 Authentication uses a secure HTTP-only cookie. Service and staff writes require an
 admin account. Customers can view their own appointments and cancel them; admins
 can view all appointments and change their status.
+
+The `/admin` routes require an authenticated admin session and redirect to
+`/login` otherwise. Dashboard statistics, appointments, services, staff,
+customers, profile details, salon settings, staff schedules, and holidays are
+loaded from and saved to MongoDB.
 
 Staff records support `weeklySchedule` entries using weekday numbers (`0` Sunday
 through `6` Saturday) and `holidays` using `YYYY-MM-DD` salon-local dates. Booking

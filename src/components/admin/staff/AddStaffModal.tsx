@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import { UserPlus, X } from "lucide-react";
 
-import { StaffMember } from "@/src/data/staffMembers";
-import { services } from "@/src/data/services";
+import { AdminService, StaffMember, apiRequest } from "@/src/types/admin-ui";
 
 interface Props {
   open: boolean;
   editing: boolean;
   staff: StaffMember | null;
   onClose: () => void;
+  onSaved: () => void;
+  services: AdminService[];
 }
 
 export default function AddStaffModal({
@@ -19,42 +20,19 @@ export default function AddStaffModal({
   editing,
   staff,
   onClose,
+  onSaved,
+  services,
 }: Props) {
-  const [name, setName] = useState("");
-
-  const [image, setImage] = useState("");
-
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-
-  const [workingDays, setWorkingDays] = useState<string[]>([]);
-
-  const [startHour, setStartHour] = useState("09:00");
-
-  const [endHour, setEndHour] = useState("17:00");
-
-  const [active, setActive] = useState(true);
-
-  useEffect(() => {
-    if (!open) return;
-
-    if (editing && staff) {
-      setName(staff.name);
-      setImage(staff.image);
-      setSelectedServices(staff.services);
-      setWorkingDays(staff.workingDays);
-      setStartHour(staff.startHour);
-      setEndHour(staff.endHour);
-      setActive(staff.active);
-    } else {
-      setName("");
-      setImage("");
-      setSelectedServices([]);
-      setWorkingDays([]);
-      setStartHour("09:00");
-      setEndHour("17:00");
-      setActive(true);
-    }
-  }, [open, editing, staff]);
+  const [name, setName] = useState(staff?.name ?? "");
+  const [image, setImage] = useState(staff?.image ?? "");
+  const [selectedServices, setSelectedServices] = useState<string[]>(staff?.services ?? []);
+  const [workingDays, setWorkingDays] = useState<string[]>(staff?.workingDays ?? []);
+  const [startHour, setStartHour] = useState(staff?.startHour ?? "09:00");
+  const [endHour, setEndHour] = useState(staff?.endHour ?? "17:00");
+  const [active, setActive] = useState(staff?.active ?? true);
+  const [holidayDates, setHolidayDates] = useState(
+    staff?.holidays.map(({ date }) => date).join(", ") ?? "",
+  );
 
   if (!open) return null;
 
@@ -86,14 +64,30 @@ export default function AddStaffModal({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
-    await Swal.fire({
-      icon: "success",
-      title: editing ? "Staff Updated" : "Staff Added",
-      confirmButtonColor: "#be185d",
-    });
-
-    onClose();
+    try {
+      const dayNumbers: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+      await apiRequest(editing && staff ? `/api/staff/${staff.id}` : "/api/staff", {
+        method: editing ? "PATCH" : "POST",
+        body: JSON.stringify({
+          name,
+          specialty: selectedServices.join(", ") || "General",
+          image,
+          active,
+          serviceIds: services.filter((item) => selectedServices.includes(item.name)).map((item) => item.id),
+          weeklySchedule: workingDays.map((day) => ({ dayOfWeek: dayNumbers[day], startTime: startHour, endTime: endHour })),
+          holidays: holidayDates
+            .split(",")
+            .map((date) => date.trim())
+            .filter(Boolean)
+            .map((date) => ({ date })),
+        }),
+      });
+      await Swal.fire({ icon: "success", title: editing ? "Staff Updated" : "Staff Added", confirmButtonColor: "#be185d" });
+      onSaved();
+      onClose();
+    } catch (error: unknown) {
+      await Swal.fire({ icon: "error", title: "Could not save staff", text: error instanceof Error ? error.message : "Request failed" });
+    }
   }
 
   return (
@@ -201,15 +195,15 @@ export default function AddStaffModal({
                   key={service.id}
                   type="button"
                   onClick={() =>
-                    toggleService(service.title)
+                    toggleService(service.name)
                   }
                   className={`rounded-xl border p-3 transition ${
-                    selectedServices.includes(service.title)
+                    selectedServices.includes(service.name)
                       ? "border-rose-700 bg-rose-100 text-rose-700"
                       : "border-gray-200"
                   }`}
                 >
-                  {service.title}
+                  {service.name}
                 </button>
 
               ))}
@@ -292,6 +286,17 @@ export default function AddStaffModal({
           </div>
 
           {/* Status */}
+
+          <div>
+            <label className="mb-2 block font-medium">Holiday Dates</label>
+            <input
+              value={holidayDates}
+              onChange={(event) => setHolidayDates(event.target.value)}
+              placeholder="2026-08-15, 2026-12-25"
+              className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:border-rose-400"
+            />
+            <p className="mt-2 text-sm text-gray-500">Enter salon-local dates in YYYY-MM-DD format, separated by commas.</p>
+          </div>
 
           <div className="rounded-2xl border border-rose-100 bg-rose-50 p-5">
 

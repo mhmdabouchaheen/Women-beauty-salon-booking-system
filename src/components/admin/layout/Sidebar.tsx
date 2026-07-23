@@ -10,6 +10,7 @@ import {
   UserRound,
   Settings,
   X,
+  LogOut,
 } from "lucide-react";
 
 const links = [
@@ -57,6 +58,10 @@ interface SidebarProps {
 
 export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  async function logout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.href = "/login";
+  }
 
   return (
     <>
@@ -119,6 +124,10 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
             );
           })}
         </nav>
+        <button onClick={logout} className="m-5 flex items-center gap-4 rounded-xl px-4 py-3 text-red-600 hover:bg-red-50">
+          <LogOut size={20} />
+          <span className="font-medium">Logout</span>
+        </button>
       </aside>
     </>
   );

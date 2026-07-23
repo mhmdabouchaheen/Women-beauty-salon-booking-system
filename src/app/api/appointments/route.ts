@@ -13,7 +13,7 @@ import { findServiceById } from "@/src/repositories/service.repository";
 import { findStaffById, staffProvidesService } from "@/src/repositories/staff.repository";
 import { findUserById } from "@/src/repositories/user.repository";
 import { sendAppointmentConfirmationEmail } from "@/src/services/email.service";
-import { bookingAppointmentSchema } from "@/src/validations/appointment.validation";
+import { adminBookingAppointmentSchema, bookingAppointmentSchema } from "@/src/validations/appointment.validation";
 
 export async function GET() {
   try {
@@ -32,13 +32,18 @@ export async function POST(request: Request) {
   try {
     const auth = await getAuthUser();
     if (!auth) return NextResponse.json({ success: false, message: "Authentication required." }, { status: 401 });
-    const input = bookingAppointmentSchema.parse(await request.json());
+    const body: unknown = await request.json();
+    const adminInput = auth.role === "admin"
+      ? adminBookingAppointmentSchema.parse(body)
+      : null;
+    const input = adminInput ?? bookingAppointmentSchema.parse(body);
+    const bookingUserId = adminInput?.userId ?? auth.userId;
     const requestedStart = createSalonDateTime(input.appointmentDate, input.appointmentTime);
     if (requestedStart <= new Date()) {
       return NextResponse.json({ success: false, message: "Appointment time must be in the future." }, { status: 400 });
     }
     const [user, service, staff] = await Promise.all([
-      findUserById(auth.userId),
+      findUserById(bookingUserId),
       findServiceById(input.serviceId),
       findStaffById(input.staffId),
     ]);
@@ -54,7 +59,14 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    const appointment = await createAppointment({ ...input, userId: auth.userId, status: "booked" });
+    const appointment = await createAppointment({
+      serviceId: input.serviceId,
+      staffId: input.staffId,
+      appointmentDate: input.appointmentDate,
+      appointmentTime: input.appointmentTime,
+      userId: bookingUserId,
+      status: "booked",
+    });
     const emailResult = await sendAppointmentConfirmationEmail({
       customerName: user.name,
       customerEmail: user.email,
