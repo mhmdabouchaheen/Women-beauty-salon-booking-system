@@ -5,26 +5,11 @@ import type {
   AppointmentStatus,
   CreateAppointmentInput,
 } from "../types/appointment";
+import { createSalonDateTime } from "../lib/date-time";
+import { getStaffAvailability } from "./staff.repository";
 
 function populateAppointment<T extends { populate(path: string): T }>(query: T): T {
   return query.populate("userId").populate("serviceId").populate("staffId");
-}
-
-function combineDateAndTime(dateValue: Date | string, time: string): Date {
-  const date = new Date(dateValue);
-  if (Number.isNaN(date.getTime())) throw new Error("Invalid appointment date");
-
-  const [hours, minutes] = time.split(":").map(Number);
-  if (
-    !/^([01]\d|2[0-3]):[0-5]\d$/.test(time) ||
-    hours === undefined ||
-    minutes === undefined
-  ) {
-    throw new Error("Appointment time must use HH:mm format");
-  }
-
-  date.setHours(hours, minutes, 0, 0);
-  return date;
 }
 
 export async function findConflictingAppointment(
@@ -49,8 +34,16 @@ export async function createAppointment(data: CreateAppointmentInput) {
   const service = await Service.findById(data.serviceId).select("duration");
   if (!service) throw new Error("Selected service was not found");
 
-  const startDateTime = combineDateAndTime(data.appointmentDate, data.appointmentTime);
+  const startDateTime = createSalonDateTime(data.appointmentDate, data.appointmentTime);
   const endDateTime = new Date(startDateTime.getTime() + service.duration * 60_000);
+  const availability = await getStaffAvailability(data.staffId, startDateTime, endDateTime);
+  if (!availability.available) {
+    throw new Error(
+      availability.reason === "holiday"
+        ? "The selected staff member is on holiday on this date"
+        : "The appointment is outside the selected staff member's working hours",
+    );
+  }
   const conflict = await findConflictingAppointment(data.staffId, startDateTime, endDateTime);
   if (conflict) throw new Error("The selected staff member is unavailable during this time");
 

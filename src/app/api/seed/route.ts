@@ -1,4 +1,5 @@
 import { hash } from "bcryptjs";
+import { Types } from "mongoose";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
@@ -36,6 +37,7 @@ type PopulatedAppointment = {
 function nextSeedDate(): Date {
   const date = new Date();
   date.setDate(date.getDate() + 2);
+  if (date.getDay() === 0) date.setDate(date.getDate() + 1);
   date.setHours(0, 0, 0, 0);
   return date;
 }
@@ -89,9 +91,18 @@ export async function POST() {
       return service;
     }
 
-    async function ensureStaff(input: { name: string; specialty: string }) {
-      const existing = await Staff.findOne({ name: input.name, specialty: input.specialty });
+    async function ensureStaff(input: {
+      name: string;
+      specialty: string;
+      serviceIds: string[];
+      weeklySchedule: Array<{ dayOfWeek: number; startTime: string; endTime: string }>;
+    }) {
+      const existing = await Staff.findOne({ name: input.name });
       if (existing) {
+        existing.specialty = input.specialty;
+        existing.serviceIds = input.serviceIds.map((id) => new Types.ObjectId(id));
+        existing.weeklySchedule = input.weeklySchedule;
+        await existing.save();
         reused.staff += 1;
         return existing;
       }
@@ -125,7 +136,7 @@ export async function POST() {
       duration: 30,
       price: 25,
     });
-    await ensureService({
+    const facialTreatment = await ensureService({
       name: "Facial Treatment",
       description: "Refreshing facial skincare treatment",
       duration: 45,
@@ -135,8 +146,15 @@ export async function POST() {
     const sara = await ensureStaff({
       name: "Sara Beauty",
       specialty: "Hair Styling and Facial Treatment",
+      serviceIds: [hairStyling._id.toString(), facialTreatment._id.toString()],
+      weeklySchedule: [1, 2, 3, 4, 5, 6].map((dayOfWeek) => ({ dayOfWeek, startTime: "09:00", endTime: "18:00" })),
     });
-    await ensureStaff({ name: "Lina Nails", specialty: "Manicure" });
+    await ensureStaff({
+      name: "Lina Nails",
+      specialty: "Manicure and Hair Styling",
+      serviceIds: [manicure._id.toString(), hairStyling._id.toString()],
+      weeklySchedule: [1, 2, 3, 4, 5, 6].map((dayOfWeek) => ({ dayOfWeek, startTime: "09:00", endTime: "18:00" })),
+    });
 
     const appointmentDate = nextSeedDate();
     const baseLookup = {
