@@ -22,6 +22,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, staff }, { status: 201 });
   } catch (error: unknown) {
     if (error instanceof ZodError) return validationError(error);
+    if (error instanceof Error && error.message.includes("selected services")) {
+      return NextResponse.json({ success: false, message: error.message }, { status: 400 });
+    }
     return serverError("Creating staff member failed:", error);
   }
 }

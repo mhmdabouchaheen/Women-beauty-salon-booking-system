@@ -23,7 +23,15 @@ Add the database connection and a long random authentication secret to `.env.loc
 ```env
 MONGODB_URI=mongodb+srv://...
 JWT_SECRET=replace-with-a-long-random-secret
+RESEND_API_KEY=re_...
+EMAIL_FROM=Women Beauty Salon <appointments@your-verified-domain.example>
 ```
+
+Appointment times are interpreted and displayed in the salon timezone, currently
+centralized as `Asia/Beirut` in `src/config/salon.ts`. After a booking is stored,
+the server sends its confirmation to the email on the authenticated User record.
+An email delivery failure does not roll back the appointment; the API returns
+`notification.emailSent: false` with HTTP 201.
 
 Then start the development server:
 
@@ -68,6 +76,11 @@ The Next.js backend provides these routes:
 Authentication uses a secure HTTP-only cookie. Service and staff writes require an
 admin account. Customers can view their own appointments and cancel them; admins
 can view all appointments and change their status.
+
+Staff records support `weeklySchedule` entries using weekday numbers (`0` Sunday
+through `6` Saturday) and `holidays` using `YYYY-MM-DD` salon-local dates. Booking
+is allowed only when the entire service duration fits within that staff member's
+working hours and the date is not a holiday.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

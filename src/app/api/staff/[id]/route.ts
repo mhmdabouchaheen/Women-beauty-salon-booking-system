@@ -34,6 +34,9 @@ export async function PATCH(request: Request, context: Context) {
       : NextResponse.json({ success: false, message: "Staff member not found." }, { status: 404 });
   } catch (error: unknown) {
     if (error instanceof ZodError) return validationError(error);
+    if (error instanceof Error && error.message.includes("selected services")) {
+      return NextResponse.json({ success: false, message: error.message }, { status: 400 });
+    }
     return serverError("Updating staff member failed:", error);
   }
 }
