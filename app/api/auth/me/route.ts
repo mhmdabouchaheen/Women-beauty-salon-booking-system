@@ -1,1 +1,1 @@
-export { GET } from "@/src/app/api/auth/me/route";
+export { GET, PATCH } from "@/src/app/api/auth/me/route";

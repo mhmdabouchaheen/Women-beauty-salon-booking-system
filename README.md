@@ -67,7 +67,8 @@ Both endpoints are disabled when `NODE_ENV` is `production`.
 The Next.js backend provides these routes:
 
 - `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`
-- `GET /api/auth/me`
+- `GET`, `PATCH /api/auth/me`
+- `POST /api/auth/forgot-password`, `POST /api/auth/reset-password`
 - `GET /api/services` and `GET /api/services/:id`
 - `GET /api/staff` and `GET /api/staff/:id`
 - `GET /api/appointments`, `POST /api/appointments`
@@ -85,6 +86,10 @@ The `/admin` routes require an authenticated admin session and redirect to
 `/login` otherwise. Dashboard statistics, appointments, services, staff,
 customers, profile details, salon settings, staff schedules, and holidays are
 loaded from and saved to MongoDB.
+
+Customer routes under `/dashboard` also require authentication. The customer
+dashboard, appointment history, cancellation, profile editing, login,
+registration, logout, and password reset flows use the live MongoDB-backed API.
 
 Staff records support `weeklySchedule` entries using weekday numbers (`0` Sunday
 through `6` Saturday) and `holidays` using `YYYY-MM-DD` salon-local dates. Booking

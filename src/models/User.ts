@@ -14,6 +14,8 @@ const userSchema = new Schema<IUser>(
     },
     password: { type: String, required: true },
     image: { type: String, trim: true, default: "/window.svg" },
+    passwordResetTokenHash: { type: String, select: false },
+    passwordResetExpiresAt: { type: Date, select: false },
     role: {
       type: String,
       enum: ["customer", "admin"],

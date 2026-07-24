@@ -49,3 +49,39 @@ export async function sendAppointmentConfirmationEmail(details: AppointmentConfi
     return { success: false, error: "Email delivery failed" };
   }
 }
+
+export async function sendPasswordResetEmail(
+  recipient: string,
+  customerName: string,
+  resetUrl: string,
+): Promise<EmailDeliveryResult> {
+  try {
+    const { data, error } = await getResendClient().emails.send({
+      from: getEmailFrom(),
+      to: recipient,
+      subject: `Reset your ${SALON_NAME} password`,
+      text: [
+        `Hello ${customerName},`,
+        "",
+        "We received a request to reset your password.",
+        `Open this secure link within one hour: ${resetUrl}`,
+        "",
+        "If you did not request this, you can ignore this email.",
+      ].join("\n"),
+    });
+    if (error || !data?.id) {
+      console.error("Password reset email delivery failed", {
+        provider: "resend",
+        errorType: error?.name ?? "UnknownProviderError",
+      });
+      return { success: false, error: "Email delivery failed" };
+    }
+    return { success: true, emailId: data.id };
+  } catch (error: unknown) {
+    console.error("Password reset email delivery failed", {
+      provider: "resend",
+      errorType: error instanceof Error ? error.name : "UnknownError",
+    });
+    return { success: false, error: "Email delivery failed" };
+  }
+}
