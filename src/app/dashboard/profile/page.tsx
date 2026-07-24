@@ -1,5 +1,5 @@
 import { Bell } from "lucide-react";
-import ProfileView from "@/src/components/custumer/ProfileView";
+import ProfileView from "@/src/components/customer/ProfileView";
 import { mockUser } from "@/src/data/customer-mock";
 
 // TODO(backend): swap the mock import above for a real fetch of the

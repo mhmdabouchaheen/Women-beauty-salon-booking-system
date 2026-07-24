@@ -1,5 +1,5 @@
 import { Bell, Search } from "lucide-react";
-import HistoryList from "@/src/components/custumer/HistoryList";
+import HistoryList from "@/src/components/customer/HistoryList";
 import { mockBookingHistory } from "@/src/data/customer-mock";
 
 // TODO(backend): swap the mock import above for a real fetch of the user's

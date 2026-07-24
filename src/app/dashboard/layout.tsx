@@ -1,5 +1,5 @@
-import DashboardSidebar from "@/src/components/custumer/DashboardSidebar";
-import MobileBottomNav from "@/src/components/custumer/MobileBottomNav";
+import DashboardSidebar from "@/src/components/customer/DashboardSidebar";
+import MobileBottomNav from "@/src/components/customer/MobileBottomNav";
 import { mockUser } from "@/src/data/customer-mock";
 
 // TODO(backend): this used to redirect to /login unless a real session

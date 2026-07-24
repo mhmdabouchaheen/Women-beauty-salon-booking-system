@@ -3,9 +3,9 @@
 // component calling `getAuthUser()` + a repository, like the previous
 // version of this app did) and delete this file.
 
-import type { UpcomingAppointmentItem } from "@/src/components/custumer/UpcomingAppointments";
-import type { TreatmentHistoryRow } from "@/src/components/custumer/TreatmentHistoryTable";
-import type { BookingHistoryItem } from "@/src/components/custumer/HistoryList";
+import type { UpcomingAppointmentItem } from "@/src/components/customer/UpcomingAppointments";
+import type { TreatmentHistoryRow } from "@/src/components/customer/TreatmentHistoryTable";
+import type { BookingHistoryItem } from "@/src/components/customer/HistoryList";
 
 export const mockUser = {
   name: "Elena Vance",

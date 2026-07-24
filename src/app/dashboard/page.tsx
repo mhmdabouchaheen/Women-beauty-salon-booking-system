@@ -1,8 +1,8 @@
 import { Bell, Search } from "lucide-react";
-import UpcomingAppointments from "@/src/components/custumer/UpcomingAppointments";
-import GoldStatusCard from "@/src/components/custumer/GoldStatusCard";
-import FavoritesGrid from "@/src/components/custumer/FavoritesGrid";
-import TreatmentHistoryTable from "@/src/components/custumer/TreatmentHistoryTable";
+import UpcomingAppointments from "@/src/components/customer/UpcomingAppointments";
+import GoldStatusCard from "@/src/components/customer/GoldStatusCard";
+import FavoritesGrid from "@/src/components/customer/FavoritesGrid";
+import TreatmentHistoryTable from "@/src/components/customer/TreatmentHistoryTable";
 import { mockUser, mockUpcomingAppointments, mockTreatmentHistory } from "@/src/data/customer-mock";
 
 // TODO(backend): swap the mock imports above for a real fetch (auth user +
