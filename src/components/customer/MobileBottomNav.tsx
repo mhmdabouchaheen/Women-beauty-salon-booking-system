@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, History, PlusCircle, User } from "lucide-react";
+import { Home, History, Users, PlusCircle, User } from "lucide-react";
 
 const items = [
   { name: "Home", href: "/dashboard", icon: Home },
   { name: "History", href: "/dashboard/history", icon: History },
+  { name: "Experts", href: "/dashboard/experts", icon: Users },
   { name: "Services", href: "/#services", icon: PlusCircle },
   { name: "Profile", href: "/dashboard/profile", icon: User },
 ];

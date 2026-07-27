@@ -3,11 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutGrid, History, User, HelpCircle, LogOut } from "lucide-react";
+import { LayoutGrid, History, User, Users, HelpCircle, LogOut } from "lucide-react";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutGrid },
   { name: "History", href: "/dashboard/history", icon: History },
+  { name: "Experts", href: "/dashboard/experts", icon: Users },
   { name: "Profile", href: "/dashboard/profile", icon: User },
 ];
 
