@@ -1,9 +1,16 @@
 import Image from "next/image";
 import Button from "./Button";
-import { Service } from "@/src/data/services";
 
 interface Props {
-  service: Service;
+  service: {
+    id: string;
+    title: string;
+    description: string;
+    duration: string;
+    price: string;
+    image: string;
+    featured?: boolean;
+  };
 }
 
 export default function ServiceCard({ service }: Props) {

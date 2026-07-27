@@ -1,6 +1,8 @@
 import { connectDB } from "../lib/db/mongoose";
 import Appointment from "../models/Appointment";
 import Service from "../models/Service";
+import User from "../models/User";
+import { POINTS_PER_COMPLETED_APPOINTMENT } from "../config/rewards";
 import type {
   AppointmentStatus,
   CreateAppointmentInput,
@@ -93,6 +95,24 @@ export async function deleteAppointmentsByUser(userId: string) {
 
 export async function updateAppointmentStatus(id: string, status: AppointmentStatus) {
   await connectDB();
+  if (status === "completed") {
+    const newlyRewarded = await Appointment.findOneAndUpdate(
+      { _id: id, rewardsAwarded: { $ne: true } },
+      { $set: { status, rewardsAwarded: true } },
+      { new: true, runValidators: true },
+    );
+    if (newlyRewarded) {
+      await User.findByIdAndUpdate(newlyRewarded.userId, {
+        $inc: {
+          rewardPoints: POINTS_PER_COMPLETED_APPOINTMENT,
+          lifetimeRewardPoints: POINTS_PER_COMPLETED_APPOINTMENT,
+        },
+      });
+    } else {
+      await Appointment.findByIdAndUpdate(id, { status }, { runValidators: true });
+    }
+    return populateAppointment(Appointment.findById(id));
+  }
   return populateAppointment(
     Appointment.findByIdAndUpdate(id, { status }, { new: true, runValidators: true }),
   );

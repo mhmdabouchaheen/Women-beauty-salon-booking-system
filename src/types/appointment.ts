@@ -12,6 +12,7 @@ export interface IAppointment {
   startDateTime: Date;
   endDateTime: Date;
   status: AppointmentStatus;
+  rewardsAwarded: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

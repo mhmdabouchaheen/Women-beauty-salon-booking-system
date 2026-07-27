@@ -14,6 +14,8 @@ const userSchema = new Schema<IUser>(
     },
     password: { type: String, required: true },
     image: { type: String, trim: true, default: "/window.svg" },
+    rewardPoints: { type: Number, min: 0, default: 0 },
+    lifetimeRewardPoints: { type: Number, min: 0, default: 0 },
     passwordResetTokenHash: { type: String, select: false },
     passwordResetExpiresAt: { type: Date, select: false },
     role: {

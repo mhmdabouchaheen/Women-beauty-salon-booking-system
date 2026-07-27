@@ -59,7 +59,10 @@ export default async function DashboardPage() {
           <UpcomingAppointments appointments={upcoming} />
         </div>
         <div className="col-span-1 md:col-span-5">
-          <GoldStatusCard />
+          <GoldStatusCard
+            points={user.rewardPoints ?? 0}
+            lifetimePoints={user.lifetimeRewardPoints ?? 0}
+          />
         </div>
       </div>
 

@@ -10,7 +10,7 @@ export interface ProfileViewProps {
   avatar: string;
   memberSince: string;
   points?: number;
-  pointsTarget?: number;
+  lifetimePoints?: number;
 }
 
 export default function ProfileView({
@@ -19,7 +19,7 @@ export default function ProfileView({
   avatar,
   memberSince,
   points = 0,
-  pointsTarget = 1000,
+  lifetimePoints = 0,
 }: ProfileViewProps) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(initialName);
@@ -27,8 +27,11 @@ export default function ProfileView({
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
 
-  const progress = Math.min(100, (points / pointsTarget) * 100);
-  const pointsToNextTier = Math.max(0, pointsTarget - points);
+  const pointsTarget = 1000;
+  const level = Math.floor(lifetimePoints / pointsTarget) + 1;
+  const pointsInLevel = lifetimePoints % pointsTarget;
+  const progress = Math.min(100, (pointsInLevel / pointsTarget) * 100);
+  const pointsToNextTier = pointsTarget - pointsInLevel;
 
   const handleSave = async () => {
     setMessage("");
@@ -185,13 +188,12 @@ export default function ProfileView({
               </h3>
             </div>
             <span className="px-4 py-2 rounded-full bg-white text-primary font-bold">
-              {points} Points
+              {points} Available Points
             </span>
           </div>
 
           <p className="font-body-md text-body-md opacity-90 mb-6">
-            You&apos;re {pointsToNextTier} points away from your next
-            complimentary treatment.
+            Level {level}: {pointsToNextTier} lifetime points until Level {level + 1}.
           </p>
 
           <div className="w-full h-3 rounded-full bg-white/20 overflow-hidden">
@@ -201,8 +203,8 @@ export default function ProfileView({
             />
           </div>
           <div className="flex justify-between mt-2 text-[12px] font-semibold uppercase tracking-wide opacity-90">
-            <span>Silver Tier</span>
-            <span>Gold Tier</span>
+            <span>{lifetimePoints} Lifetime Points</span>
+            <span>Level {level + 1}</span>
           </div>
         </div>
       </section>

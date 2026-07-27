@@ -21,6 +21,7 @@ const appointmentSchema = new Schema<IAppointment>(
       default: "booked",
       index: true,
     },
+    rewardsAwarded: { type: Boolean, default: false },
   },
   { timestamps: true, collection: "appointments" },
 );

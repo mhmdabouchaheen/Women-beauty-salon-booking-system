@@ -46,3 +46,12 @@ export async function deleteUser(id: string) {
   await connectDB();
   return User.findByIdAndDelete(id);
 }
+
+export async function redeemUserReward(id: string, cost: number) {
+  await connectDB();
+  return User.findOneAndUpdate(
+    { _id: id, role: "customer", rewardPoints: { $gte: cost } },
+    { $inc: { rewardPoints: -cost } },
+    { new: true, runValidators: true },
+  );
+}

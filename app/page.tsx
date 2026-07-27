@@ -5,6 +5,8 @@ import ExpertsSection from "@/src/components/home/ExpertsSection";
 import TestimonialsSection from "@/src/components/home/TestimonialsSection";
 import Footer from "@/src/components/layout/Footer";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <>

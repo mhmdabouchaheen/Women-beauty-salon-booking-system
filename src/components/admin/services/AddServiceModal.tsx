@@ -5,6 +5,7 @@ import { X, Scissors } from "lucide-react";
 import Swal from "sweetalert2";
 
 import { AdminService, apiRequest } from "@/src/types/admin-ui";
+import ImageUploadField from "@/src/components/admin/shared/ImageUploadField";
 
 interface Props {
   open: boolean;
@@ -100,25 +101,7 @@ export default function AddServiceModal({
         >
         {/* Image */}
 
-<div>
-
-  <label className="mb-2 block font-medium">
-    Service Image
-  </label>
-
-  <input
-    type="text"
-    value={image}
-    onChange={(e) => setImage(e.target.value)}
-    placeholder="/services/hair.jpg"
-    className="w-full rounded-xl border border-gray-200 p-3 outline-none transition focus:border-rose-400"
-  />
-
-  <p className="mt-2 text-sm text-gray-500">
-    For now we&apos;ll use an image path. Later this will become an upload.
-  </p>
-
-</div>
+<ImageUploadField label="Service Image" value={image} onChange={setImage} />
 
 {/* Name */}
 

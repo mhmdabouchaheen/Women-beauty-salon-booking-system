@@ -5,7 +5,7 @@ import { ZodError } from "zod";
 import { requireAdmin } from "@/src/lib/admin";
 import { serverError, validationError } from "@/src/lib/api";
 import { createUser, findUserByEmail, getCustomers } from "@/src/repositories/user.repository";
-import { registerSchema } from "@/src/validations/auth.validation";
+import { customerCreateSchema } from "@/src/validations/admin.validation";
 
 export async function GET() {
   try {
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
   try {
     const authorization = await requireAdmin();
     if (authorization.response) return authorization.response;
-    const input = registerSchema.parse(await request.json());
+    const input = customerCreateSchema.parse(await request.json());
     if (await findUserByEmail(input.email)) {
       return NextResponse.json({ success: false, message: "An account with this email already exists." }, { status: 409 });
     }

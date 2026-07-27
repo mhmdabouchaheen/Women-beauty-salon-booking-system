@@ -35,6 +35,8 @@ export default async function ProfilePage() {
         email={user.email}
         avatar={user.image || "/window.svg"}
         memberSince={new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(user.createdAt)}
+        points={user.rewardPoints ?? 0}
+        lifetimePoints={user.lifetimeRewardPoints ?? 0}
       />
     </>
   );

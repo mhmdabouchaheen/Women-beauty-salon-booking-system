@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { UserPlus, X } from "lucide-react";
 
 import { AdminService, StaffMember, apiRequest } from "@/src/types/admin-ui";
+import ImageUploadField from "@/src/components/admin/shared/ImageUploadField";
 
 interface Props {
   open: boolean;
@@ -160,22 +161,7 @@ export default function AddStaffModal({
 
             </div>
 
-            <div>
-
-              <label className="mb-2 block font-medium">
-                Image
-              </label>
-
-              <input
-                value={image}
-                onChange={(e) =>
-                  setImage(e.target.value)
-                }
-                placeholder="/staff/emma.jpg"
-                className="w-full rounded-xl border border-gray-200 p-3 focus:border-rose-400 outline-none"
-              />
-
-            </div>
+            <ImageUploadField label="Staff Image" value={image} onChange={setImage} />
 
           </div>
 

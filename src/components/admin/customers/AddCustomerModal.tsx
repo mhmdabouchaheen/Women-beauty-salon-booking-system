@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { UserCheck, X } from "lucide-react";
 
 import { Customer, apiRequest } from "@/src/types/admin-ui";
+import ImageUploadField from "@/src/components/admin/shared/ImageUploadField";
 
 interface Props {
   open: boolean;
@@ -33,7 +34,7 @@ export default function AddCustomerModal({
     try {
       await apiRequest(customer ? `/api/admin/customers/${customer.id}` : "/api/admin/customers", {
         method: customer ? "PATCH" : "POST",
-        body: JSON.stringify(customer ? { name, email, image } : { name, email, password }),
+        body: JSON.stringify(customer ? { name, email, image } : { name, email, password, image }),
       });
       await Swal.fire({ icon: "success", title: customer ? "Customer Updated" : "Customer Created", confirmButtonColor: "#be185d" });
       onSaved();
@@ -69,15 +70,7 @@ export default function AddCustomerModal({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6 p-8">
-          <div>
-            <label className="mb-2 block font-medium">Profile Image</label>
-            <input
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-              placeholder="/customers/customer1.jpg"
-              className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:border-rose-400"
-            />
-          </div>
+          <ImageUploadField label="Profile Image" value={image} onChange={setImage} />
 
           {!customer && (
             <div>
