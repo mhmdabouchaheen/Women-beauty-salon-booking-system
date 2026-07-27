@@ -106,7 +106,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex flex-1 flex-col gap-2 p-5">
+        <nav className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-5">
           {links.map((link) => {
             const Icon = link.icon;
 
@@ -130,10 +130,15 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
             );
           })}
         </nav>
-        <button onClick={logout} className="m-5 flex items-center gap-4 rounded-xl px-4 py-3 text-red-600 hover:bg-red-50">
-          <LogOut size={20} />
-          <span className="font-medium">Logout</span>
-        </button>
+        <div className="shrink-0 border-t border-rose-100 bg-white p-5">
+          <button
+            onClick={logout}
+            className="flex w-full items-center gap-4 rounded-xl px-4 py-3 text-red-600 transition hover:bg-red-50"
+          >
+            <LogOut size={20} />
+            <span className="font-medium">Logout</span>
+          </button>
+        </div>
       </aside>
     </>
   );
