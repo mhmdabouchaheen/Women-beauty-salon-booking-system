@@ -11,6 +11,7 @@ import {
   Settings,
   X,
   LogOut,
+  Bell,
 } from "lucide-react";
 
 const links = [
@@ -38,6 +39,11 @@ const links = [
     name: "Customers",
     href: "/admin/customers",
     icon: UserRound,
+  },
+  {
+    name: "Notifications",
+    href: "/admin/notifications",
+    icon: Bell,
   },
   {
     name: "Settings",

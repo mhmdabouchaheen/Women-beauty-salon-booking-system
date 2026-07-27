@@ -23,13 +23,17 @@ Add the database connection and a long random authentication secret to `.env.loc
 ```env
 MONGODB_URI=mongodb+srv://...
 JWT_SECRET=replace-with-a-long-random-secret
-RESEND_API_KEY=re_...
-EMAIL_FROM=Women Beauty Salon <appointments@your-verified-domain.example>
+GMAIL_USER=your-salon-email@gmail.com
+GMAIL_APP_PASSWORD=your-16-character-google-app-password
+EMAIL_FROM_NAME=Women Beauty Salon
 ```
 
 Appointment times are interpreted and displayed in the salon timezone, currently
 centralized as `Asia/Beirut` in `src/config/salon.ts`. After a booking is stored,
-the server sends its confirmation to the email on the authenticated User record.
+the server sends its confirmation through Gmail SMTP to the email on the
+authenticated User record. `GMAIL_APP_PASSWORD` must be a Google App Password,
+not the normal password for the Gmail account. The Google account must have
+2-Step Verification enabled before an App Password can be created.
 An email delivery failure does not roll back the appointment; the API returns
 `notification.emailSent: false` with HTTP 201.
 

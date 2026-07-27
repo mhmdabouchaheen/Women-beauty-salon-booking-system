@@ -1,10 +1,8 @@
 "use client";
 
-import {
-  Bell,
-  Menu,
-  UserCircle2,
-} from "lucide-react";
+import { Menu, UserCircle2 } from "lucide-react";
+
+import NotificationBell from "@/src/components/notifications/NotificationBell";
 
 interface TopbarProps {
   onMenuClick: () => void;
@@ -30,14 +28,7 @@ export default function Topbar({
       </div>
 
       <div className="flex items-center gap-5">
-        <button className="relative rounded-full p-2 hover:bg-rose-50">
-          <Bell
-            size={22}
-            className="text-gray-600"
-          />
-
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-rose-600"></span>
-        </button>
+        <NotificationBell href="/admin/notifications" className="text-gray-600" />
 
         <div className="flex items-center gap-3">
           <UserCircle2
