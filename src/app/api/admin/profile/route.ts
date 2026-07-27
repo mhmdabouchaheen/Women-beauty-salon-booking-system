@@ -13,7 +13,17 @@ export async function GET() {
     if (authorization.response || !authorization.auth) return authorization.response;
     const user = await findUserById(authorization.auth.userId);
     return user
-      ? NextResponse.json({ success: true, user: { id: user.id, name: user.name, email: user.email, image: user.image, role: user.role } })
+      ? NextResponse.json({
+          success: true,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+            role: user.role,
+            lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
+          },
+        })
       : NextResponse.json({ success: false, message: "Admin user not found." }, { status: 404 });
   } catch (error: unknown) {
     return serverError("Loading admin profile failed:", error);

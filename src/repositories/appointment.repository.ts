@@ -30,6 +30,20 @@ export async function findConflictingAppointment(
   });
 }
 
+export async function findCustomerConflictingAppointment(
+  userId: string,
+  startDateTime: Date,
+  endDateTime: Date,
+) {
+  await connectDB();
+  return Appointment.findOne({
+    userId,
+    status: "booked",
+    startDateTime: { $lt: endDateTime },
+    endDateTime: { $gt: startDateTime },
+  });
+}
+
 export async function createAppointment(data: CreateAppointmentInput) {
   await connectDB();
 
@@ -48,6 +62,14 @@ export async function createAppointment(data: CreateAppointmentInput) {
   }
   const conflict = await findConflictingAppointment(data.staffId, startDateTime, endDateTime);
   if (conflict) throw new Error("The selected staff member is unavailable during this time");
+  const customerConflict = await findCustomerConflictingAppointment(
+    data.userId,
+    startDateTime,
+    endDateTime,
+  );
+  if (customerConflict) {
+    throw new Error("The selected customer already has an appointment during this time");
+  }
 
   const appointment = await Appointment.create({
     ...data,

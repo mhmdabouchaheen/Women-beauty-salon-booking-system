@@ -16,6 +16,7 @@ import { apiRequest } from "@/src/types/admin-ui";
 export default function ProfilePage() {
   const [name, setName] = useState("Admin User");
   const [email, setEmail] = useState("admin@glowbeauty.com");
+  const [lastLoginAt, setLastLoginAt] = useState<string | null>(null);
 
   const [editingInfo, setEditingInfo] = useState(false);
 
@@ -24,10 +25,11 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
-    void apiRequest<{ user: { name: string; email: string } }>("/api/admin/profile")
+    void apiRequest<{ user: { name: string; email: string; lastLoginAt: string | null } }>("/api/admin/profile")
       .then(({ user }) => {
         setName(user.name);
         setEmail(user.email);
+        setLastLoginAt(user.lastLoginAt);
       });
   }, []);
 
@@ -160,7 +162,12 @@ export default function ProfilePage() {
               </p>
 
               <p className="mt-2 font-semibold">
-                Today • 09:42 AM
+                {lastLoginAt
+                  ? new Intl.DateTimeFormat("en-LB", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    }).format(new Date(lastLoginAt))
+                  : "Not available yet"}
               </p>
 
             </div>

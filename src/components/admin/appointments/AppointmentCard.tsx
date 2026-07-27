@@ -3,14 +3,15 @@
 import { Pencil, Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
 
-import { Appointment } from "@/src/types/admin-ui";
+import { Appointment, apiRequest } from "@/src/types/admin-ui";
 
 interface Props {
   appointment: Appointment;
   onEdit: (appointment: Appointment) => void;
+  onDeleted: () => void;
 }
 
-export default function AppointmentCard({ appointment, onEdit }: Props) {
+export default function AppointmentCard({ appointment, onEdit, onDeleted }: Props) {
   async function handleDelete() {
     const result = await Swal.fire({
       title: "Delete Appointment?",
@@ -22,11 +23,23 @@ export default function AppointmentCard({ appointment, onEdit }: Props) {
     });
 
     if (result.isConfirmed) {
-      Swal.fire({
-        icon: "success",
-        title: "Deleted",
-        confirmButtonColor: "#be185d",
-      });
+      try {
+        await apiRequest(`/api/appointments/${appointment.id}`, { method: "DELETE" });
+        await Swal.fire({
+          icon: "success",
+          title: "Deleted",
+          text: "Appointment deleted successfully.",
+          confirmButtonColor: "#be185d",
+        });
+        onDeleted();
+      } catch (error: unknown) {
+        await Swal.fire({
+          icon: "error",
+          title: "Could not delete appointment",
+          text: error instanceof Error ? error.message : "Request failed",
+          confirmButtonColor: "#be185d",
+        });
+      }
     }
   }
 

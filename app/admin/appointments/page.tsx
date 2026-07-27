@@ -98,6 +98,7 @@ export default function AppointmentsPage() {
           setSelectedAppointment(appointment);
           setOpen(true);
         }}
+        onDeleted={loadAppointments}
       />
 
       {open && <AddAppointmentModal

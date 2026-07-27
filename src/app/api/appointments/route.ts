@@ -89,6 +89,9 @@ export async function POST(request: Request) {
     if (error instanceof Error && error.message.includes("unavailable")) {
       return NextResponse.json({ success: false, message: error.message }, { status: 409 });
     }
+    if (error instanceof Error && error.message.includes("already has an appointment")) {
+      return NextResponse.json({ success: false, message: error.message }, { status: 409 });
+    }
     if (error instanceof Error && (error.message.includes("on holiday") || error.message.includes("working hours"))) {
       return NextResponse.json({ success: false, message: error.message }, { status: 409 });
     }

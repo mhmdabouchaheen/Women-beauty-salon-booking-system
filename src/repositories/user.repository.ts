@@ -55,3 +55,8 @@ export async function redeemUserReward(id: string, cost: number) {
     { new: true, runValidators: true },
   );
 }
+
+export async function recordUserLogin(id: string) {
+  await connectDB();
+  return User.findByIdAndUpdate(id, { lastLoginAt: new Date() }, { new: true });
+}

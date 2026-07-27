@@ -14,6 +14,13 @@ interface ServiceForm {
   time: string;
 }
 
+interface AvailabilityState {
+  workingDates: Array<{ date: string; label: string }>;
+  timeSlots: Array<{ time: string; label: string }>;
+  loading: boolean;
+  error?: string;
+}
+
 interface Props {
   open: boolean;
   appointment: Appointment | null;
@@ -31,7 +38,7 @@ export default function AddAppointmentModal({
   onClose,
   onSaved,
 }: Props) {
-  const [customer, setCustomer] = useState(appointment?.customer ?? "");
+  const [customer, setCustomer] = useState("");
 
   const [status, setStatus] = useState<
     "Scheduled" | "Completed" | "Cancelled"
@@ -39,6 +46,7 @@ export default function AddAppointmentModal({
   const [customers, setCustomers] = useState<Array<{ id: string; name: string }>>([]);
   const [services, setServices] = useState<Array<{ id: string; title: string }>>([]);
   const [staff, setStaff] = useState<Array<{ id: string; name: string; services: string[] }>>([]);
+  const [availability, setAvailability] = useState<Record<string, AvailabilityState>>({});
 
   useEffect(() => {
     if (!open) return;
@@ -99,6 +107,58 @@ export default function AddAppointmentModal({
     );
   }
 
+  async function loadAvailability(
+    rowId: string,
+    serviceName: string,
+    staffName: string,
+    date: string,
+    customerId = customer,
+  ) {
+    const serviceRecord = services.find((item) => item.title === serviceName);
+    const staffRecord = staff.find((item) => item.name === staffName);
+    if (!serviceRecord || !staffRecord || !customerId) {
+      setAvailability((current) => ({
+        ...current,
+        [rowId]: { workingDates: [], timeSlots: [], loading: false },
+      }));
+      return;
+    }
+    setAvailability((current) => ({
+      ...current,
+      [rowId]: {
+        workingDates: current[rowId]?.workingDates ?? [],
+        timeSlots: [],
+        loading: true,
+      },
+    }));
+    try {
+      const params = new URLSearchParams({
+        staffId: staffRecord.id,
+        serviceId: serviceRecord.id,
+        userId: customerId,
+      });
+      if (date) params.set("date", date);
+      const result = await apiRequest<{
+        workingDates: Array<{ date: string; label: string }>;
+        timeSlots: Array<{ time: string; label: string }>;
+      }>(`/api/appointments/availability?${params.toString()}`);
+      setAvailability((current) => ({
+        ...current,
+        [rowId]: { ...result, loading: false },
+      }));
+    } catch (error: unknown) {
+      setAvailability((current) => ({
+        ...current,
+        [rowId]: {
+          workingDates: [],
+          timeSlots: [],
+          loading: false,
+          error: error instanceof Error ? error.message : "Availability could not be loaded.",
+        },
+      }));
+    }
+  }
+
   async function submitForm(e: React.FormEvent) {
     e.preventDefault();
     try {
@@ -106,7 +166,7 @@ export default function AddAppointmentModal({
         const apiStatus = status === "Cancelled" ? "cancelled" : status === "Completed" ? "completed" : "booked";
         await apiRequest(`/api/appointments/${appointment.id}`, { method: "PATCH", body: JSON.stringify({ status: apiStatus }) });
       } else {
-        const customerRecord = customers.find((item) => item.name === customer);
+        const customerRecord = customers.find((item) => item.id === customer);
         if (!customerRecord) throw new Error("Select a customer");
         for (const item of appointmentServices) {
           const serviceRecord = services.find((service) => service.title === item.service);
@@ -187,11 +247,25 @@ export default function AddAppointmentModal({
             Customer
           </label>
 
-          <select
+          {editing ? (
+            <div className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3">
+              {appointment?.customer}
+            </div>
+          ) : <select
             value={customer}
-            onChange={(e) =>
-              setCustomer(e.target.value)
-            }
+            required
+            onChange={(e) => {
+              const customerId = e.target.value;
+              setCustomer(customerId);
+              setAppointmentServices((current) =>
+                current.map((item) => ({ ...item, time: "" })),
+              );
+              appointmentServices.forEach((item) => {
+                if (item.service && item.staff) {
+                  void loadAvailability(item.id, item.service, item.staff, item.date, customerId);
+                }
+              });
+            }}
             className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:border-rose-300"
           >
 
@@ -203,20 +277,20 @@ export default function AddAppointmentModal({
 
               <option
                 key={customer.id}
-                value={customer.name}
+                value={customer.id}
               >
                 {customer.name}
               </option>
 
             ))}
 
-          </select>
+          </select>}
 
         </div>
 
         {/* Services */}
 
-        <div className="space-y-6">
+        {!editing && <div className="space-y-6">
 
           <div className="flex items-center justify-between">
 
@@ -288,6 +362,12 @@ export default function AddAppointmentModal({
 
                       updateService(
                         service.id,
+                        "date",
+                        ""
+                      );
+
+                      updateService(
+                        service.id,
                         "time",
                         ""
                       );
@@ -319,13 +399,21 @@ export default function AddAppointmentModal({
                   <select
                     value={service.staff}
                     disabled={!service.service}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       updateService(
                         service.id,
                         "staff",
                         e.target.value
-                      )
-                    }
+                      );
+                      updateService(service.id, "date", "");
+                      updateService(service.id, "time", "");
+                      void loadAvailability(
+                        service.id,
+                        service.service,
+                        e.target.value,
+                        "",
+                      );
+                    }}
                     className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:border-rose-300 disabled:bg-gray-100"
                   >
                     <option value="">
@@ -350,18 +438,33 @@ export default function AddAppointmentModal({
                     Date
                   </label>
 
-                  <input
-                    type="date"
+                  <select
                     value={service.date}
-                    onChange={(e) =>
+                    required
+                    disabled={!customer || !service.staff || availability[service.id]?.loading}
+                    onChange={(e) => {
                       updateService(
                         service.id,
                         "date",
                         e.target.value
-                      )
-                    }
-                    className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:border-rose-300"
-                  />
+                      );
+                      updateService(service.id, "time", "");
+                      void loadAvailability(
+                        service.id,
+                        service.service,
+                        service.staff,
+                        e.target.value,
+                      );
+                    }}
+                    className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:border-rose-300 disabled:bg-gray-100"
+                  >
+                    <option value="">
+                      {availability[service.id]?.loading ? "Loading working days…" : "Select working day"}
+                    </option>
+                    {(availability[service.id]?.workingDates ?? []).map((item) => (
+                      <option key={item.date} value={item.date}>{item.label}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Available Time */}
@@ -373,7 +476,8 @@ export default function AddAppointmentModal({
 
                   <select
                     value={service.time}
-                    disabled={!service.staff}
+                    required
+                    disabled={!service.date || availability[service.id]?.loading}
                     onChange={(e) =>
                       updateService(
                         service.id,
@@ -384,23 +488,24 @@ export default function AddAppointmentModal({
                     className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:border-rose-300 disabled:bg-gray-100"
                   >
                     <option value="">
-                      Select time
+                      {availability[service.id]?.loading ? "Checking availability…" : "Select free time"}
                     </option>
-
-                    <option value="09:00">09:00 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="13:00">01:00 PM</option>
-                    <option value="14:00">02:00 PM</option>
-                    <option value="15:00">03:00 PM</option>
-                    <option value="16:00">04:00 PM</option>
+                    {(availability[service.id]?.timeSlots ?? []).map((slot) => (
+                      <option key={slot.time} value={slot.time}>{slot.label}</option>
+                    ))}
                   </select>
+                  {service.date && !availability[service.id]?.loading && availability[service.id]?.timeSlots.length === 0 && (
+                    <p className="mt-2 text-sm text-amber-700">No mutually free times are available on this date.</p>
+                  )}
+                  {availability[service.id]?.error && (
+                    <p className="mt-2 text-sm text-red-600">{availability[service.id].error}</p>
+                  )}
                 </div>
               </div>
             </div>
           );
         })}
-        </div>
+        </div>}
                 {/* Status (Edit only) */}
 
         {editing && (

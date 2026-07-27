@@ -7,11 +7,13 @@ import AppointmentMobileCard from "./AppointmentMobileCard";
 interface Props {
   appointments: Appointment[];
   onEdit: (appointment: Appointment) => void;
+  onDeleted: () => void;
 }
 
 export default function AppointmentList({
   appointments,
   onEdit,
+  onDeleted,
 }: Props) {
   if (appointments.length === 0) {
     return (
@@ -73,6 +75,7 @@ export default function AppointmentList({
                   key={appointment.id}
                   appointment={appointment}
                   onEdit={onEdit}
+                  onDeleted={onDeleted}
                 />
               ))}
             </tbody>
@@ -89,6 +92,7 @@ export default function AppointmentList({
             key={appointment.id}
             appointment={appointment}
             onEdit={onEdit}
+            onDeleted={onDeleted}
           />
         ))}
       </div>

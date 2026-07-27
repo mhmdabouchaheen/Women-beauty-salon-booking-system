@@ -10,6 +10,7 @@ export interface IUser {
   image?: string;
   rewardPoints: number;
   lifetimeRewardPoints: number;
+  lastLoginAt?: Date;
   passwordResetTokenHash?: string;
   passwordResetExpiresAt?: Date;
   role: UserRole;
@@ -18,4 +19,4 @@ export interface IUser {
 }
 
 export type CreateUserInput = Pick<IUser, "name" | "email" | "password"> &
-  Partial<Pick<IUser, "role" | "image" | "rewardPoints" | "lifetimeRewardPoints">>;
+  Partial<Pick<IUser, "role" | "image" | "rewardPoints" | "lifetimeRewardPoints" | "lastLoginAt">>;
