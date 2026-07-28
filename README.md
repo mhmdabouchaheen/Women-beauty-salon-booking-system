@@ -26,6 +26,9 @@ JWT_SECRET=replace-with-a-long-random-secret
 GMAIL_USER=your-salon-email@gmail.com
 GMAIL_APP_PASSWORD=your-16-character-google-app-password
 EMAIL_FROM_NAME=Women Beauty Salon
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 Appointment times are interpreted and displayed in the salon timezone, currently
@@ -36,6 +39,34 @@ not the normal password for the Gmail account. The Google account must have
 2-Step Verification enabled before an App Password can be created.
 An email delivery failure does not roll back the appointment; the API returns
 `notification.emailSent: false` with HTTP 201.
+
+## Stripe test payments
+
+Stripe Checkout is integrated in test mode. Create a Stripe account, enable a
+test sandbox, and copy its test secret key into `.env.local`. Never commit secret
+or webhook keys.
+
+For local webhook testing, install the Stripe CLI, sign in, and forward events:
+
+```bash
+stripe login
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+```
+
+Copy the displayed `whsec_...` signing secret to `STRIPE_WEBHOOK_SECRET`, then
+restart the development server. Book an appointment using "Pay securely with
+Stripe" and test a successful payment with:
+
+```text
+Card: 4242 4242 4242 4242
+Expiry: any future date, such as 12/34
+CVC: any three digits
+```
+
+The browser never sends card details to this application. Prices are loaded
+server-side from MongoDB. A temporary booking reservation is created before
+Checkout; a verified payment converts it into an appointment, while cancelling
+or expiration releases the slot. "Pay at the salon" remains available.
 
 Then start the development server:
 
@@ -77,6 +108,8 @@ The Next.js backend provides these routes:
 - `GET /api/staff` and `GET /api/staff/:id`
 - `GET /api/appointments`, `POST /api/appointments`
 - `GET /api/appointments/:id`, `PATCH /api/appointments/:id`
+- `POST /api/payments/checkout`, `POST /api/payments/confirm`, `POST /api/payments/cancel`
+- `POST /api/webhooks/stripe`
 - `GET /api/admin/dashboard`
 - `GET`, `POST /api/admin/customers` and `PATCH`, `DELETE /api/admin/customers/:id`
 - `GET`, `PATCH /api/admin/profile`

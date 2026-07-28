@@ -1,5 +1,6 @@
 import { connectDB } from "../lib/db/mongoose";
 import Appointment from "../models/Appointment";
+import BookingReservation from "../models/BookingReservation";
 import Service from "../models/Service";
 import User from "../models/User";
 import { POINTS_PER_COMPLETED_APPOINTMENT } from "../config/rewards";
@@ -44,15 +45,25 @@ export async function findCustomerConflictingAppointment(
   });
 }
 
-export async function createAppointment(data: CreateAppointmentInput) {
+export async function createAppointment(
+  data: CreateAppointmentInput & { reservationIdToIgnore?: string },
+) {
   await connectDB();
+  const { reservationIdToIgnore, ...appointmentData } = data;
 
-  const service = await Service.findById(data.serviceId).select("duration");
+  const service = await Service.findById(appointmentData.serviceId).select("duration");
   if (!service) throw new Error("Selected service was not found");
 
-  const startDateTime = createSalonDateTime(data.appointmentDate, data.appointmentTime);
+  const startDateTime = createSalonDateTime(
+    appointmentData.appointmentDate,
+    appointmentData.appointmentTime,
+  );
   const endDateTime = new Date(startDateTime.getTime() + service.duration * 60_000);
-  const availability = await getStaffAvailability(data.staffId, startDateTime, endDateTime);
+  const availability = await getStaffAvailability(
+    appointmentData.staffId,
+    startDateTime,
+    endDateTime,
+  );
   if (!availability.available) {
     throw new Error(
       availability.reason === "holiday"
@@ -60,20 +71,35 @@ export async function createAppointment(data: CreateAppointmentInput) {
         : "The appointment is outside the selected staff member's working hours",
     );
   }
-  const conflict = await findConflictingAppointment(data.staffId, startDateTime, endDateTime);
+  const conflict = await findConflictingAppointment(
+    appointmentData.staffId,
+    startDateTime,
+    endDateTime,
+  );
   if (conflict) throw new Error("The selected staff member is unavailable during this time");
   const customerConflict = await findCustomerConflictingAppointment(
-    data.userId,
+    appointmentData.userId,
     startDateTime,
     endDateTime,
   );
   if (customerConflict) {
     throw new Error("The selected customer already has an appointment during this time");
   }
+  const reservationConflict = await BookingReservation.findOne({
+    status: { $in: ["pending", "processing"] },
+    expiresAt: { $gt: new Date() },
+    startDateTime: { $lt: endDateTime },
+    endDateTime: { $gt: startDateTime },
+    $or: [{ staffId: appointmentData.staffId }, { userId: appointmentData.userId }],
+    ...(reservationIdToIgnore ? { _id: { $ne: reservationIdToIgnore } } : {}),
+  });
+  if (reservationConflict) {
+    throw new Error("This appointment time is temporarily reserved by another checkout");
+  }
 
   const appointment = await Appointment.create({
-    ...data,
-    appointmentDate: new Date(data.appointmentDate),
+    ...appointmentData,
+    appointmentDate: new Date(appointmentData.appointmentDate),
     startDateTime,
     endDateTime,
   });

@@ -4,6 +4,7 @@ import { SALON_TIME_ZONE } from "@/src/config/salon";
 import { createSalonDateTime } from "@/src/lib/date-time";
 import { connectDB } from "@/src/lib/db/mongoose";
 import Appointment from "@/src/models/Appointment";
+import BookingReservation from "@/src/models/BookingReservation";
 import Service from "@/src/models/Service";
 import Staff from "@/src/models/Staff";
 import User from "@/src/models/User";
@@ -96,12 +97,22 @@ export async function getAppointmentAvailability(input: {
 
   const startOfDay = createSalonDateTime(input.date, "00:00");
   const endOfDay = createSalonDateTime(addCalendarDays(input.date, 1), "00:00");
-  const conflicts = await Appointment.find({
-    status: "booked",
-    startDateTime: { $lt: endOfDay },
-    endDateTime: { $gt: startOfDay },
-    $or: [{ staffId: input.staffId }, { userId: input.userId }],
-  }).select("startDateTime endDateTime").lean();
+  const [appointments, reservations] = await Promise.all([
+    Appointment.find({
+      status: "booked",
+      startDateTime: { $lt: endOfDay },
+      endDateTime: { $gt: startOfDay },
+      $or: [{ staffId: input.staffId }, { userId: input.userId }],
+    }).select("startDateTime endDateTime").lean(),
+    BookingReservation.find({
+      status: { $in: ["pending", "processing"] },
+      expiresAt: { $gt: now },
+      startDateTime: { $lt: endOfDay },
+      endDateTime: { $gt: startOfDay },
+      $or: [{ staffId: input.staffId }, { userId: input.userId }],
+    }).select("startDateTime endDateTime").lean(),
+  ]);
+  const conflicts = [...appointments, ...reservations];
 
   const opening = minutesFromTime(schedule.startTime);
   const closing = minutesFromTime(schedule.endTime);

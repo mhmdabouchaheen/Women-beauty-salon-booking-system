@@ -39,11 +39,7 @@ export default function CustomerBookingForm() {
   const [loadingOptions, setLoadingOptions] = useState(true);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"salon" | "demo-card">("salon");
-  const [cardName, setCardName] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvv, setCardCvv] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"salon" | "stripe">("salon");
 
   useEffect(() => {
     async function loadOptions() {
@@ -109,29 +105,13 @@ export default function CustomerBookingForm() {
     }
   }
 
-  function demoCardIsComplete() {
-    return (
-      cardName.trim().length > 1 &&
-      cardNumber.replace(/\s/g, "").length >= 12 &&
-      cardExpiry.trim().length >= 4 &&
-      cardCvv.trim().length >= 3
-    );
-  }
-
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (paymentMethod === "demo-card" && !demoCardIsComplete()) {
-      await Swal.fire({
-        icon: "error",
-        title: "Complete the demo card",
-        text: "Enter all demo card fields. These values are not stored or charged.",
-        confirmButtonColor: "#be185d",
-      });
-      return;
-    }
     setSubmitting(true);
     try {
-      const response = await fetch("/api/appointments", {
+      const response = await fetch(
+        paymentMethod === "stripe" ? "/api/payments/checkout" : "/api/appointments",
+        {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -141,15 +121,17 @@ export default function CustomerBookingForm() {
           appointmentTime: time,
         }),
       });
-      const result = await response.json() as { message?: string };
+      const result = await response.json() as { message?: string; url?: string };
       if (!response.ok) throw new Error(result.message ?? "Appointment could not be created.");
+      if (paymentMethod === "stripe") {
+        if (!result.url) throw new Error("Stripe Checkout URL was not returned.");
+        window.location.assign(result.url);
+        return;
+      }
       await Swal.fire({
         icon: "success",
         title: "Appointment Booked",
-        text:
-          paymentMethod === "demo-card"
-            ? "Your appointment is confirmed. Demo card details were discarded and no charge was made."
-            : result.message ?? "Your appointment is confirmed.",
+        text: result.message ?? "Your appointment is confirmed.",
         confirmButtonColor: "#be185d",
       });
       router.push("/dashboard/history");
@@ -298,26 +280,17 @@ export default function CustomerBookingForm() {
           </button>
           <button
             type="button"
-            onClick={() => setPaymentMethod("demo-card")}
-            className={`rounded-2xl border p-5 text-left ${paymentMethod === "demo-card" ? "border-rose-700 bg-rose-50" : "border-gray-200"}`}
+            onClick={() => setPaymentMethod("stripe")}
+            className={`rounded-2xl border p-5 text-left ${paymentMethod === "stripe" ? "border-rose-700 bg-rose-50" : "border-gray-200"}`}
           >
-            <p className="font-bold text-gray-900">Card payment demo</p>
-            <p className="mt-1 text-sm text-gray-500">UI testing only; no charge or storage.</p>
+            <p className="font-bold text-gray-900">Pay securely with Stripe</p>
+            <p className="mt-1 text-sm text-gray-500">Continue to Stripe&apos;s secure test checkout.</p>
           </button>
         </div>
 
-        {paymentMethod === "demo-card" && (
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <input required value={cardName} onChange={(event) => setCardName(event.target.value)} placeholder="Cardholder name" className="rounded-xl border border-gray-200 p-3 outline-none focus:border-rose-500" />
-            <input required inputMode="numeric" value={cardNumber} onChange={(event) => setCardNumber(event.target.value)} placeholder="Demo card number" className="rounded-xl border border-gray-200 p-3 outline-none focus:border-rose-500" />
-            <input required value={cardExpiry} onChange={(event) => setCardExpiry(event.target.value)} placeholder="MM/YY" className="rounded-xl border border-gray-200 p-3 outline-none focus:border-rose-500" />
-            <input required inputMode="numeric" value={cardCvv} onChange={(event) => setCardCvv(event.target.value)} placeholder="CVV" className="rounded-xl border border-gray-200 p-3 outline-none focus:border-rose-500" />
-          </div>
-        )}
-
         <div className="mt-5 flex items-start gap-3 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
           <ShieldCheck size={19} className="mt-0.5 shrink-0" />
-          Online card charging is in demo mode until Stripe is configured. Card values stay in this browser and are discarded.
+          Stripe Checkout securely collects card details. Glow never receives or stores the card number.
         </div>
       </section>
 
@@ -333,7 +306,7 @@ export default function CustomerBookingForm() {
           className="inline-flex min-w-52 items-center justify-center gap-2 rounded-xl bg-rose-700 px-7 py-3 font-semibold text-white transition hover:bg-rose-800 disabled:opacity-60"
         >
           {submitting && <LoaderCircle size={18} className="animate-spin" />}
-          Book Appointment
+          {paymentMethod === "stripe" ? "Continue to Stripe" : "Book Appointment"}
         </button>
       </div>
     </form>
