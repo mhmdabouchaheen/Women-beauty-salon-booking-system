@@ -3,14 +3,17 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutGrid, History, Users, User, HelpCircle, LogOut, Menu, X } from "lucide-react";
+import { Bell, CalendarPlus, LayoutGrid, CalendarDays, Users, User, HelpCircle, LogOut, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+
+import NewAppointmentModal from "./NewAppointmentModal";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutGrid },
-  { name: "History", href: "/dashboard/history", icon: History },
+  { name: "Appointments", href: "/dashboard/appointments", icon: CalendarDays },
   { name: "Experts", href: "/dashboard/experts", icon: Users },
   { name: "Profile", href: "/dashboard/profile", icon: User },
+  { name: "Contact Us", href: "/dashboard/contact", icon: HelpCircle },
 ];
 
 interface Props {
@@ -23,6 +26,7 @@ export default function DashboardNavbar({ userName, avatar }: Props) {
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -50,20 +54,21 @@ export default function DashboardNavbar({ userName, avatar }: Props) {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        className={`fixed left-0 right-0 top-0 z-30 transition-all duration-300 md:left-72 ${
           scrolled
             ? "border-b border-rose-100 bg-white/95 shadow-md backdrop-blur-xl"
             : "bg-white/60 backdrop-blur-md"
         }`}
       >
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
-          {/* Logo */}
+        <div className="flex h-20 w-full items-center justify-between px-6 md:px-8">
+          {/* Logo (mobile only — sidebar already shows it on desktop) */}
           <Link
             href="/dashboard"
-            className="font-display text-4xl italic tracking-tight text-rose-700"
+            className="font-display text-4xl italic tracking-tight text-rose-700 md:hidden"
           >
             Glow
           </Link>
+          <div className="hidden md:block" />
 
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-10 lg:flex">
@@ -84,6 +89,19 @@ export default function DashboardNavbar({ userName, avatar }: Props) {
 
           {/* Desktop Right */}
           <div className="hidden items-center gap-4 lg:flex">
+            <button
+              onClick={() => setBookingOpen(true)}
+              className="flex items-center gap-2 rounded-xl bg-rose-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-rose-800"
+            >
+              <CalendarPlus size={18} />
+              New Appointment
+            </button>
+
+            <button className="relative rounded-full p-2 text-gray-600 transition hover:bg-rose-50" aria-label="Notifications">
+              <Bell size={22} />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-rose-600" />
+            </button>
+
             <Link
               href="/dashboard/profile"
               className="flex items-center gap-3 rounded-full py-1 pl-1 pr-4 transition hover:bg-rose-50"
@@ -175,21 +193,23 @@ export default function DashboardNavbar({ userName, avatar }: Props) {
               );
             })}
 
-            <Link
-              href="/support"
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-4 border-b py-4 text-lg text-gray-700 transition hover:text-rose-700"
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                setBookingOpen(true);
+              }}
+              className="mt-6 flex items-center justify-center gap-2 rounded-xl bg-rose-700 py-3 text-center font-medium text-white transition hover:bg-rose-800"
             >
-              <HelpCircle size={20} />
-              Support
-            </Link>
+              <CalendarPlus size={18} />
+              New Appointment
+            </button>
 
             <button
               onClick={() => {
                 setMenuOpen(false);
                 handleLogout();
               }}
-              className="mt-8 flex items-center justify-center gap-3 rounded-xl border border-rose-200 py-3 text-center font-medium text-rose-700 transition hover:bg-rose-50"
+              className="mt-3 flex items-center justify-center gap-3 rounded-xl border border-rose-200 py-3 text-center font-medium text-rose-700 transition hover:bg-rose-50"
             >
               <LogOut size={18} />
               Logout
@@ -197,6 +217,8 @@ export default function DashboardNavbar({ userName, avatar }: Props) {
           </nav>
         </div>
       </div>
+
+      <NewAppointmentModal open={bookingOpen} onClose={() => setBookingOpen(false)} />
     </>
   );
 }

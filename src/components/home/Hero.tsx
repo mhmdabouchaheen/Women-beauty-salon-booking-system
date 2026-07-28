@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Sparkles, Star } from "lucide-react";
+import { Star } from "lucide-react";
 
 import FadeUp from "../ui/FadeUp";
 
@@ -19,12 +19,6 @@ export default function Hero() {
           {/* LEFT */}
 
           <div>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-100/70 px-4 py-2 text-sm font-medium text-rose-700">
-              <Sparkles size={18} />
-
-              VOTED #1 LUXURY SALON
-            </div>
-
             <h1 className="font-display mb-8 text-5xl leading-tight text-gray-900 lg:text-7xl">
               Experience
               <br />

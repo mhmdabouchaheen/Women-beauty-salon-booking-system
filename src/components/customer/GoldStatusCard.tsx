@@ -6,37 +6,34 @@ export default function GoldStatusCard() {
   const progress = (points / target) * 100;
 
   return (
-    <div className="relative bg-primary-container text-on-primary-container rounded-[24px] p-8 shadow-xl overflow-hidden flex flex-col">
-      {/* Decorative blurred glows, matching the reference design */}
-      <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
-      <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-tertiary-fixed-dim/20 rounded-full blur-3xl" />
+    <div className="relative flex flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-rose-700 to-pink-600 p-8 text-white shadow-lg">
+      <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
+      <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
 
-      <div className="relative z-10 flex flex-col flex-1">
-        <div className="flex items-center gap-3 mb-6">
+      <div className="relative z-10 flex flex-1 flex-col">
+        <div className="mb-6 flex items-center gap-3">
           <Award size={32} />
-          <h2 className="font-headline-sm text-headline-sm">Gold Status</h2>
+          <h2 className="text-xl font-semibold">Gold Status</h2>
         </div>
 
-        <p className="font-body-md text-body-md opacity-90 mb-8">
+        <p className="mb-8 text-rose-100">
           You&apos;re 250 points away from your next complimentary treatment!
         </p>
 
         <div className="mb-4">
-          <div className="flex justify-between font-label-md text-label-md mb-2">
-            <span>
-              {points} / {target} pts
-            </span>
+          <div className="mb-2 flex justify-between text-sm font-medium">
+            <span>{points} / {target} pts</span>
             <span>Level 3</span>
           </div>
-          <div className="w-full h-3 rounded-full bg-white/20 overflow-hidden">
+          <div className="h-3 w-full overflow-hidden rounded-full bg-white/20">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-secondary-fixed to-white"
+              className="h-full rounded-full bg-white"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
-        <button className="w-full mt-6 py-4 bg-white text-primary font-button-text text-button-text rounded-xl shadow-md hover:shadow-xl transition-all">
+        <button className="mt-6 w-full rounded-xl bg-white py-4 font-semibold text-rose-700 shadow-md transition hover:scale-[1.02]">
           Redeem Rewards
         </button>
       </div>

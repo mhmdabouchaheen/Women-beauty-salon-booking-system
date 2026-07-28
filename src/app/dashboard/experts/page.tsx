@@ -1,4 +1,4 @@
-import { Bell, Search } from "lucide-react";
+import { Users } from "lucide-react";
 import ExpertCard from "@/src/components/ui/ExpertCard";
 import { experts } from "@/src/data/experts";
 
@@ -7,31 +7,19 @@ import { experts } from "@/src/data/experts";
 export default function DashboardExpertsPage() {
   return (
     <>
-      <header className="flex justify-between items-end mb-10">
-        <div className="space-y-1">
-          <h1 className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">
-            Meet the Experts
-          </h1>
-          <p className="text-on-surface-variant font-body-lg text-body-lg">
-            Browse our stylists and specialists, and find your favorite.
-          </p>
+      <div className="mb-10 flex flex-col gap-6 rounded-3xl bg-gradient-to-r from-rose-700 to-pink-600 p-8 text-white lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-5">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20">
+            <Users size={30} />
+          </div>
+          <div>
+            <h1 className="text-4xl font-bold">Meet the Experts</h1>
+            <p className="mt-2 text-rose-100">
+              Browse our stylists and specialists, and find your favorite.
+            </p>
+          </div>
         </div>
-
-        <div className="hidden md:flex gap-4">
-          <button
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-xl border border-white/40 text-on-surface-variant hover:text-primary transition-colors"
-            aria-label="Notifications"
-          >
-            <Bell size={20} />
-          </button>
-          <button
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-xl border border-white/40 text-on-surface-variant hover:text-primary transition-colors"
-            aria-label="Search"
-          >
-            <Search size={20} />
-          </button>
-        </div>
-      </header>
+      </div>
 
       <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {experts.map((expert) => (

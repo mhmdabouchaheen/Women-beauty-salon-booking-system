@@ -1,4 +1,4 @@
-import { Bell } from "lucide-react";
+import { User } from "lucide-react";
 import ProfileView from "@/src/components/customer/ProfileView";
 import { mockUser } from "@/src/data/customer-mock";
 
@@ -7,25 +7,19 @@ import { mockUser } from "@/src/data/customer-mock";
 export default function ProfilePage() {
   return (
     <>
-      <header className="flex justify-between items-end mb-10">
-        <div className="space-y-1">
-          <h1 className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">
-            My Profile
-          </h1>
-          <p className="text-on-surface-variant font-body-lg text-body-lg">
-            Manage your personal information and account security.
-          </p>
+      <div className="mb-10 flex flex-col gap-6 rounded-3xl bg-gradient-to-r from-rose-700 to-pink-600 p-8 text-white lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-5">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20">
+            <User size={30} />
+          </div>
+          <div>
+            <h1 className="text-4xl font-bold">My Profile</h1>
+            <p className="mt-2 text-rose-100">
+              Manage your personal information and account security.
+            </p>
+          </div>
         </div>
-
-        <div className="hidden md:flex gap-4">
-          <button
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-xl border border-white/40 text-on-surface-variant hover:text-primary transition-colors"
-            aria-label="Notifications"
-          >
-            <Bell size={20} />
-          </button>
-        </div>
-      </header>
+      </div>
 
       <ProfileView
         name={mockUser.name}
