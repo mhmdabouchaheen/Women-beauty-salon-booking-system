@@ -1,4 +1,4 @@
-import { Bell, Search } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
 import UpcomingAppointments from "@/src/components/customer/UpcomingAppointments";
 import GoldStatusCard from "@/src/components/customer/GoldStatusCard";
 import TreatmentHistoryTable from "@/src/components/customer/TreatmentHistoryTable";
@@ -28,29 +28,15 @@ export default async function DashboardPage() {
     }));
   return (
     <>
-      <header className="flex justify-between items-end mb-10">
-        <div className="space-y-1">
-          <h1 className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">
+      <header className="mb-8 flex items-center gap-5 rounded-3xl bg-gradient-to-r from-rose-700 to-pink-600 p-7 text-white md:p-8">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20">
+          <LayoutGrid size={28} />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold md:text-4xl">
             Welcome back, {user.name.split(" ")[0]}
           </h1>
-          <p className="text-on-surface-variant font-body-lg text-body-lg">
-            Your next moment of zen is just around the corner.
-          </p>
-        </div>
-
-        <div className="hidden md:flex gap-4">
-          <button
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-xl border border-white/40 text-on-surface-variant hover:text-primary transition-colors"
-            aria-label="Notifications"
-          >
-            <Bell size={20} />
-          </button>
-          <button
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-xl border border-white/40 text-on-surface-variant hover:text-primary transition-colors"
-            aria-label="Search"
-          >
-            <Search size={20} />
-          </button>
+          <p className="mt-1 text-rose-100">Your next moment of zen is just around the corner.</p>
         </div>
       </header>
 

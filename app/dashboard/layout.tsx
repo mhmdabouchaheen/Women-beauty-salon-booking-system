@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import DashboardSidebar from "@/src/components/customer/DashboardSidebar";
+import DashboardNavbar from "@/src/components/customer/DashboardNavbar";
 import MobileBottomNav from "@/src/components/customer/MobileBottomNav";
 import { getAuthUser } from "@/src/lib/auth";
 import { findUserById } from "@/src/repositories/user.repository";
@@ -13,8 +14,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="flex min-h-screen bg-[#FFF9FB]">
       <DashboardSidebar userName={user.name.split(" ")[0]} avatar={user.image} />
+      <DashboardNavbar userName={user.name.split(" ")[0]} avatar={user.image} />
 
-      <main className="flex-1 lg:ml-72 min-h-screen px-margin-mobile md:px-margin-desktop pt-8 pb-24 lg:pb-8">
+      <main className="min-h-screen flex-1 px-margin-mobile pb-24 pt-28 md:px-margin-desktop lg:ml-72 lg:pb-8">
         {children}
       </main>
 

@@ -70,7 +70,7 @@ export default function Navbar() {
               <User size={20} />
             </Link>
 
-            <Link href="/register">
+            <Link href="/dashboard/book">
               <Button>Book Now</Button>
             </Link>
           </div>
@@ -129,7 +129,7 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="/register"
+              href="/dashboard/book"
               onClick={() => setMenuOpen(false)}
               className="mt-4"
             >

@@ -3,11 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutGrid, History, User, HelpCircle, LogOut, Bell } from "lucide-react";
+import { LayoutGrid, History, User, HelpCircle, LogOut, Bell, CalendarPlus, Users } from "lucide-react";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutGrid },
+  { name: "Book Appointment", href: "/dashboard/book", icon: CalendarPlus },
   { name: "History", href: "/dashboard/history", icon: History },
+  { name: "Experts", href: "/dashboard/experts", icon: Users },
   { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
   { name: "Profile", href: "/dashboard/profile", icon: User },
 ];
@@ -95,20 +97,20 @@ export default function DashboardSidebar({ userName, avatar }: Props) {
 
       <div className="mt-auto px-4 mb-8">
         <Link
-          href="/#services"
+          href="/dashboard/book"
           className="block text-center w-full bg-primary text-on-primary py-4 rounded-xl font-button-text text-button-text shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all"
         >
-          Browse Services
+          Book Appointment
         </Link>
       </div>
 
       <div className="space-y-1 px-4 border-t border-outline-variant pt-6">
         <Link
-          href="/support"
+          href="/dashboard/contact"
           className="flex items-center gap-4 py-2 text-on-surface-variant hover:text-primary transition-colors"
         >
           <HelpCircle size={20} />
-          <span className="text-[14px]">Support</span>
+          <span className="text-[14px]">Contact Us</span>
         </Link>
         <button
           onClick={handleLogout}

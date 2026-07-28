@@ -1,5 +1,6 @@
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import HistoryList from "@/src/components/customer/HistoryList";
+import NotificationBell from "@/src/components/notifications/NotificationBell";
 import { getAuthUser } from "@/src/lib/auth";
 import { getCustomerDashboardAppointments } from "@/src/lib/customer-dashboard";
 
@@ -30,12 +31,10 @@ export default async function HistoryPage() {
         </div>
 
         <div className="hidden md:flex gap-4">
-          <button
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-xl border border-white/40 text-on-surface-variant hover:text-primary transition-colors"
-            aria-label="Notifications"
-          >
-            <Bell size={20} />
-          </button>
+          <NotificationBell
+            href="/dashboard/notifications"
+            className="h-12 w-12 items-center justify-center border border-white/40 bg-white/70 text-on-surface-variant backdrop-blur-xl hover:text-primary"
+          />
           <button
             className="w-12 h-12 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-xl border border-white/40 text-on-surface-variant hover:text-primary transition-colors"
             aria-label="Search"

@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, History, Bell, User } from "lucide-react";
+import { Home, History, Bell, CalendarPlus, User } from "lucide-react";
 
 const items = [
   { name: "Home", href: "/dashboard", icon: Home },
+  { name: "Book", href: "/dashboard/book", icon: CalendarPlus },
   { name: "History", href: "/dashboard/history", icon: History },
   { name: "Messages", href: "/dashboard/notifications", icon: Bell },
   { name: "Profile", href: "/dashboard/profile", icon: User },
@@ -26,7 +27,7 @@ export default function MobileBottomNav() {
           <Link
             key={item.name}
             href={item.href}
-            className={`flex flex-col items-center justify-center gap-1 px-6 py-2 rounded-2xl transition-transform ${
+            className={`flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-2xl transition-transform ${
               active
                 ? "text-primary bg-secondary-container scale-90"
                 : "text-on-surface-variant hover:opacity-80"

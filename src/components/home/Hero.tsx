@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Sparkles, Star } from "lucide-react";
 
 import Button from "../ui/Button";
@@ -36,13 +37,13 @@ export default function Hero() {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <Button>
-                Book Appointment
-              </Button>
+              <Link href="/dashboard/book">
+                <Button>Book Appointment</Button>
+              </Link>
 
-              <Button variant="outline">
-                Explore Services
-              </Button>
+              <Link href="#services">
+                <Button variant="outline">Explore Services</Button>
+              </Link>
             </div>
           </div>
 

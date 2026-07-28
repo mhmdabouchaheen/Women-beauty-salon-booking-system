@@ -34,7 +34,7 @@ export default async function Footer() {
               <li><Link href="#services">Services</Link></li>
               <li><Link href="#experts">Experts</Link></li>
               <li><Link href="#testimonials">Testimonials</Link></li>
-              <li><Link href="/register">Book Appointment</Link></li>
+              <li><Link href="/dashboard/book">Book Appointment</Link></li>
             </ul>
           </div>
 

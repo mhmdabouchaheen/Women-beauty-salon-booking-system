@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Button from "./Button";
 
 interface Props {
@@ -52,9 +53,7 @@ export default function ServiceCard({ service }: Props) {
               </span>
             </div>
 
-            <Button>
-              Book Now
-            </Button>
+            <Link href="/dashboard/book"><Button>Book Now</Button></Link>
           </div>
         </div>
       </div>
@@ -91,9 +90,7 @@ export default function ServiceCard({ service }: Props) {
             </span>
           </div>
 
-          <Button variant="outline">
-            Book
-          </Button>
+          <Link href="/dashboard/book"><Button variant="outline">Book</Button></Link>
         </div>
       </div>
     </div>
