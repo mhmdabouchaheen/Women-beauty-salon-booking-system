@@ -1,9 +1,15 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import DashboardSidebar from "@/src/components/customer/DashboardSidebar";
 import DashboardNavbar from "@/src/components/customer/DashboardNavbar";
 import MobileBottomNav from "@/src/components/customer/MobileBottomNav";
 import { getAuthUser } from "@/src/lib/auth";
 import { findUserById } from "@/src/repositories/user.repository";
+
+export const metadata: Metadata = {
+  title: "Customer Dashboard",
+  robots: { index: false, follow: false, nocache: true },
+};
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const auth = await getAuthUser();
