@@ -150,19 +150,66 @@ export async function updateAppointmentStatus(id: string, status: AppointmentSta
       { new: true, runValidators: true },
     );
     if (newlyRewarded) {
-      await User.findByIdAndUpdate(newlyRewarded.userId, {
+      const rewardedUser = await User.findByIdAndUpdate(newlyRewarded.userId, {
         $inc: {
           rewardPoints: POINTS_PER_COMPLETED_APPOINTMENT,
           lifetimeRewardPoints: POINTS_PER_COMPLETED_APPOINTMENT,
         },
       });
+      if (!rewardedUser) throw new Error("The appointment customer was not found");
     } else {
       await Appointment.findByIdAndUpdate(id, { status }, { runValidators: true });
+    }
+    const appointmentOwner = newlyRewarded
+      ?? await Appointment.findById(id).select("userId");
+    if (appointmentOwner) {
+      await reconcileCustomerRewards(appointmentOwner.userId.toString());
     }
     return populateAppointment(Appointment.findById(id));
   }
   return populateAppointment(
     Appointment.findByIdAndUpdate(id, { status }, { new: true, runValidators: true }),
+  );
+}
+
+/**
+ * Repairs legacy/incomplete reward writes without awarding an appointment twice.
+ * lifetimeRewardPoints records all points ever earned, so it can be compared with
+ * the number of appointments whose one-time reward flag has been set. The same
+ * missing amount is added to available points, preserving any previous redemption.
+ */
+export async function reconcileCustomerRewards(userId: string) {
+  const [awardedAppointments, user] = await Promise.all([
+    Appointment.countDocuments({ userId, rewardsAwarded: true }),
+    User.findById(userId).select("rewardPoints lifetimeRewardPoints"),
+  ]);
+  if (!user) return;
+
+  const currentLifetimePoints = user.lifetimeRewardPoints ?? 0;
+  const expectedLifetimePoints =
+    awardedAppointments * POINTS_PER_COMPLETED_APPOINTMENT;
+  const missingPoints = expectedLifetimePoints - currentLifetimePoints;
+  if (missingPoints <= 0) return;
+
+  await User.findOneAndUpdate(
+    {
+      _id: userId,
+      ...(currentLifetimePoints === 0
+        ? {
+            $or: [
+              { lifetimeRewardPoints: 0 },
+              { lifetimeRewardPoints: { $exists: false } },
+            ],
+          }
+        : { lifetimeRewardPoints: currentLifetimePoints }),
+    },
+    {
+      $inc: {
+        rewardPoints: missingPoints,
+        lifetimeRewardPoints: missingPoints,
+      },
+    },
+    { runValidators: true },
   );
 }
 

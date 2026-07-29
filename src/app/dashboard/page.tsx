@@ -4,11 +4,17 @@ import GoldStatusCard from "@/src/components/customer/GoldStatusCard";
 import TreatmentHistoryTable from "@/src/components/customer/TreatmentHistoryTable";
 import { getAuthUser } from "@/src/lib/auth";
 import { getCustomerDashboardAppointments } from "@/src/lib/customer-dashboard";
+import { reconcileCustomerRewards } from "@/src/repositories/appointment.repository";
 import { findUserById } from "@/src/repositories/user.repository";
 
 export default async function DashboardPage() {
   const auth = await getAuthUser();
   if (!auth) return null;
+
+  // Recover points if an older completion marked its reward as awarded before
+  // the corresponding user update succeeded.
+  await reconcileCustomerRewards(auth.userId);
+
   const [user, appointments] = await Promise.all([
     findUserById(auth.userId),
     getCustomerDashboardAppointments(auth.userId),

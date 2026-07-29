@@ -1,7 +1,0 @@
-{
-  "/api/auth/logout/route": "app/api/auth/logout/route.js",
-  "/api/notifications/route": "app/api/notifications/route.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/login/page": "app/login/page.js",
-  "/manifest.webmanifest/route": "app/manifest.webmanifest/route.js"
-}
