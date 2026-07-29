@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title description">
+  <title id="title">Glow Beauty Salon placeholder</title>
+  <desc id="description">A soft rose background with a simple profile silhouette.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff1f5"/>
+      <stop offset="1" stop-color="#fce7f3"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="400" fill="url(#background)"/>
+  <circle cx="300" cy="155" r="70" fill="#f9a8d4"/>
+  <path d="M165 365c12-88 64-132 135-132s123 44 135 132" fill="#f9a8d4"/>
+  <text x="300" y="390" fill="#9d174d" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">Glow Beauty Salon</text>
+</svg>
